@@ -419,6 +419,3 @@ class GloopTweaksHooks {
 		}
 	}
 }
-
-// Maintain compatibility with existing config.
-class_alias( '\MediaWiki\Extension\GloopTweaks\GloopEventRelayer', 'GloopEventRelayer' );

@@ -5,6 +5,7 @@ namespace MediaWiki\Extension\GloopTweaks;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Storage\SlotRecord;
 use TextContent;
+use Wikimedia\AtEase\AtEase;
 
 class GloopTweaksUtils {
 	// Retrieve Special:Contact filter text from central DB.
@@ -72,9 +73,9 @@ class GloopTweaksUtils {
 
 		// Compare message text against each regex.
 		foreach ( $regexes as $regex ) {
-			Wikimedia\suppressWarnings();
+			AtEase::suppressWarnings();
 			$match = preg_match( $regex, $text );
-			Wikimedia\restoreWarnings();
+			AtEase::restoreWarnings();
 			if ( $match ) {
 				return false;
 			}
