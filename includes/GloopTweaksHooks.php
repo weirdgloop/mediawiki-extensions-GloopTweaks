@@ -6,7 +6,7 @@ use CdnCacheUpdate;
 use DeferredUpdates;
 use ErrorPageError;
 use Html;
-use MediaWiki\Extension\GloopTweaks\StopForumSpam;
+use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
@@ -325,7 +325,7 @@ class GloopTweaksHooks {
 		}
 
 		// StopForumSpam check: only check users who are not registered already
-		if ( $user->isAnon() && GloopStopForumSpam::isBlacklisted( $userIP ) ) {
+		if ( $user->isAnon() && StopForumSpam::isBlacklisted( $userIP ) ) {
 			wfDebugLog( 'GloopTweaks', "Blocked contact form from {$userIP} as they are in StopForumSpam's database" );
 			return false;
 		}
