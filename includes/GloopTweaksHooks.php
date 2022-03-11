@@ -360,26 +360,12 @@ class GloopTweaksHooks {
 	}
 
 	/**
-	 * Our main pages are at domain root, implemented as a hook,
-	 * because $wgMainPageIsDomainRoot doesn't work for queries.
-	 */
-	public static function onGetLocalURLArticle( $title, &$url ) {
-		if ( $title->isMainPage() ) {
-			$url = '/';
-		}
-	}
-
-	/**
 	 * Use Short URL always, even for queries.
-	 * Additionally apply it to main page queries,
-	 * because $wgMainPageIsDomainRoot doesn't work for queries.
 	 */
 	public static function onGetLocalURLInternal( $title, &$url, $query ) {
 		global $wgArticlePath, $wgScript;
 		$dbkey = wfUrlencode( $title->getPrefixedDBkey() );
-		if ( $title->isMainPage() ) {
-			$url = wfAppendQuery( '/', $query );
-		} elseif ( $url == "{$wgScript}?title={$dbkey}&{$query}" ) {
+		if ( $url == "{$wgScript}?title={$dbkey}&{$query}" ) {
 			$url = wfAppendQuery(str_replace( '$1', $dbkey, $wgArticlePath ), $query );
 		}
 	}

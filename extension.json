@@ -55,7 +55,6 @@
 	"Hooks": {
 		"BeforePageDisplay": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onBeforePageDisplay",
 		"ContactForm": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onContactPage",
-		"GetLocalURL::Article": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onGetLocalURLArticle",
 		"GetLocalURL::Internal": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onGetLocalURLInternal",
 		"GlobalBlockingBlockedIpMsg": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onGlobalBlockingBlockedIpMsg",
 		"GlobalBlockingBlockedIpXffMsg": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onGlobalBlockingBlockedIpXffMsg",
