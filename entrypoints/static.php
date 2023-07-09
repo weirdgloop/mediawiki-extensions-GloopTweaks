@@ -38,7 +38,7 @@ function wfStaticMain() {
 	}
 
 	// Keep track of how well the requests are being cached.
-	$stats = RequestContext::getMain()->getStats();
+	$stats = MediaWiki\MediaWikiServices::getInstance()->getStatsdDataFactory();
 
 	$stat = stat( $filePath );
 	if ( !$stat ) {
