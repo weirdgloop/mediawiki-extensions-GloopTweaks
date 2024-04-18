@@ -6,8 +6,8 @@
 		]
 	},
 	"weirdgloop-copyright": "O conteúdo deste site está licenciado sob $1; <a href=\"https://meta.weirdgloop.org/w/Project:Copyrights\">termos adicionais podem ser aplicados</a>.\n\n",
-	"group-sysadmin": "Administradores de sistemas",
-	"group-sysadmin-member": "{{GENDER:$1|administrador de sistemas}}",
-	"grouppage-sysadmin": "{{ns:project}}:Administradores de sistemas",
+	"group-staff": "Membros da equipe",
+	"group-staff-member": "{{GENDER:$1|membro da equipe}}",
+	"grouppage-staff": "{{ns:project}}:Membros da equipe",
 	"nstab-comunidade": "Comunidade"
 }

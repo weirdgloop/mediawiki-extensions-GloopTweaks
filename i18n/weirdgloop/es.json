@@ -4,6 +4,6 @@
 			"Supeika"
 		]
 	},
-	"group-sysadmin": "Operadores de sistema",
-	"group-sysadmin-member": "{{GENDER:$1|Operador|Operadora}} de sistema"
+	"group-staff": "Personal",
+	"group-staff-member": "Miembro del personal"
 }
