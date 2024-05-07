@@ -24,11 +24,11 @@
 	"grouppage-staff": "{{ns:project}}:職員",
 	"group-jagex": "Jagex",
 	"right-jagex": "Jagex Ltd的認證員工",
-	"nstab-minecraft_legends": "Minecraft Legends",
-	"nstab-minecraft_dungeons": "Minecraft Dungeons",
-	"nstab-minecraft_story_mode": "Minecraft故事模式",
-	"nstab-minecraft_earth": "Minecraft Earth",
+	"nstab-dungeons": "Dungeons",
+	"nstab-earth": "Earth",
+	"nstab-story_mode": "故事模式",
+	"nstab-legends": "Legends",
 	"nstab-tutorial": "教學",
-	"nstab-minecraft_dungeons_tutorial": "Minecraft Dungeons教學",
+	"nstab-dungeons_tutorial": "Dungeons教學",
 	"querypage-updates-daily": "本頁面每日更新。"
 }

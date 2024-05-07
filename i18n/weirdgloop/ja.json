@@ -23,9 +23,13 @@
 	"grouppage-staff": "{{ns:project}}:スタッフ",
 	"group-jagex": "Jagex",
 	"right-jagex": "認証済みJagex Ltdの社員",
-	"nstab-minecraft_legends": "Minecraft Legends",
 	"nstab-minecraft_dungeons": "Minecraft Dungeons",
-	"nstab-minecraft_story_mode": "Minecraft Story Mode",
 	"nstab-minecraft_earth": "Minecraft Earth",
+	"nstab-minecraft_story_mode": "Minecraft Story Mode",
+	"nstab-minecraft_legends": "Minecraft Legends",
+	"nstab-dungeons": "Dungeons",
+	"nstab-earth": "Earth",
+	"nstab-story_mode": "Story Mode",
+	"nstab-legends": "Legends",
 	"querypage-updates-daily": "このページの更新は1日毎に行われます。"
 }
