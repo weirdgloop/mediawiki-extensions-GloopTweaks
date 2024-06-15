@@ -28,7 +28,6 @@ define( 'MW_DB', $_GET['db'] );
 // Load MediaWiki
 define( 'MEDIAWIKI_JOB_RUNNER', 1 );
 define( 'MW_ENTRY_POINT', 'run_jobs' );
-define( 'MW_NO_SESSION', 1 );
 require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
 
 // Verify request signature
