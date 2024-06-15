@@ -61,7 +61,7 @@ $lbFactory->disableChronologyProtection();
 
 try {
 	$mediawiki = new MediaWiki();
-	$runner = new JobRunner();
+	$runner = MediaWiki\MediaWikiServices::getInstance()->getJobRunner();
 	$response = $runner->run( [
 		'maxJobs' => $_GET['maxjobs'] ?? 5000,
 		'maxTime' => $_GET['maxtime'] ?? 30,
