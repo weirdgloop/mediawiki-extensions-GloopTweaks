@@ -25,6 +25,8 @@
 	"group-staff": "Staff",
 	"group-staff-member": "{{GENDER:$1|Staff}}",
 	"grouppage-staff": "{{ns:project}}:Staff",
+	"right-editstaff": "Edit pages protected as \"{{int:protect-level-editstaff}}\"",
+	"protect-level-editstaff": "Allow only staff",
 	"group-jagex": "Jagex",
 	"right-jagex": "Verified employee of Jagex Ltd",
 	"nstab-minecraft_dungeons": "Minecraft Dungeons",

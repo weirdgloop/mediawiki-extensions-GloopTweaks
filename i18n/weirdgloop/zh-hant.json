@@ -22,6 +22,8 @@
 	"group-staff": "職員",
 	"group-staff-member": "{{GENDER:$1|職員}}",
 	"grouppage-staff": "{{ns:project}}:職員",
+	"right-editstaff": "編輯保護層級為「{{int:protect-level-editstaff}}」的頁面",
+	"protect-level-editstaff": "僅允許職員",
 	"group-jagex": "Jagex",
 	"right-jagex": "Jagex Ltd的認證員工",
 	"nstab-dungeons": "Dungeons",

@@ -23,6 +23,8 @@
 	"group-staff": "职员",
 	"group-staff-member": "{{GENDER:$1|职员}}",
 	"grouppage-staff": "{{ns:project}}:职员",
+	"right-editstaff": "编辑保护级别为“{{int:protect-level-editstaff}}”的页面",
+	"protect-level-editstaff": "仅允许职员",
 	"group-jagex": "Jagex",
 	"right-jagex": "Jagex Ltd的认证员工",
 	"nstab-dungeons": "Dungeons",
