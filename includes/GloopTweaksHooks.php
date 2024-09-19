@@ -366,7 +366,8 @@ class GloopTweaksHooks {
 	 * Prevent infinite looping of main page requests with cache parameters.
 	 */
 	public static function onTestCanonicalRedirect( $request, $title, $output ) {
-		if ( $title->isMainPage() && strpos( $request->getRequestURL(), '/?') === 0 ) {
+		global $wgScriptPath;
+		if ( $title->isMainPage() && str_starts_with( $request->getRequestURL(), $wgScriptPath . '/?' ) ) {
 			return false;
 		}
 	}
