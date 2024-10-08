@@ -14,6 +14,8 @@ function wfStaticShowError ( $status ) {
 }
 
 function wfStaticMain() {
+	global $wgScriptPath;
+
 	// REQUEST_URI is used to determine the resource to retrieve, we must fail without it.
 	if ( !isset( $_SERVER['REQUEST_URI'] ) ) {
 		wfStaticShowError( 500 );
@@ -21,10 +23,13 @@ function wfStaticMain() {
 
 	$urlPath = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
 
-	// Reject bad URLs, non-allowed paths, non-allowed extensions, and dot paths.
-	if ( !$urlPath || !preg_match( '/^\/(extensions|resources|skins)\/.+\.(css|cur|gif|jpg|jpeg|js|png|svg|wasm)$/', $urlPath ) || strpos( $urlPath, '/.' ) !== false ) {
-		wfStaticShowError( 404 );
-		return;
+	if ( $wgScriptPath !== '' ) {
+		// If $wgScriptPath is defined, we need to replace it with a slash.
+		$pos = strpos( $urlPath, $wgScriptPath );
+		if ( $pos !== false ) {
+			// Make sure we're only replacing the first occurrence of it
+			$urlPath = substr_replace( $urlPath, '', $pos, strlen( $wgScriptPath ) );
+		}
 	}
 
 	// Strip leading slash.
