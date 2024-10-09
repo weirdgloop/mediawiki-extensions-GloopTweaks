@@ -242,7 +242,7 @@ class GloopTweaksHooks {
 		 */
 		$cfWorker = $out->getRequest()->getHeader( 'CF-Worker' );
 		$cfWorkerHandled = $out->getRequest()->getHeader( 'WGL-Worker' );
-		$workerProcessed = $cfWorker !== false && $cfWorker === $wgCloudflareDomain && $cfWorkerHandled === '1';
+		$workerProcessed = $cfWorker !== false && $cfWorkerHandled === '1';
 
 		// Avoid duplicate processing if this will be performed instead by our Cloudflare worker.
 		if ( !$workerProcessed ) {
