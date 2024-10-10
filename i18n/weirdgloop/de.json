@@ -4,5 +4,17 @@
 			"MarkusRost"
 		]
 	},
+	"group-autopatrol": "Automatisch kontrollierte Benutzer",
+	"group-autopatrol-member": "{{GENDER:$1|Automatisch kontrollierter Benutzer|Automatisch kontrollierte Benutzerin}}",
+	"group-cats": "CATS",
+	"group-cats-member": "{{GENDER:$1|CATS-Mitglied}}",
+	"group-directors": "Direktoren",
+	"group-directors-member": "{{GENDER:$1|Direktor|Direktorin}}",
+	"group-global-interface-maintainer": "Globale Oberflächeninstandhalter",
+	"group-global-interface-maintainer-member": "{{GENDER:$1|Globaler Oberflächeninstandhalter|Globale Oberflächeninstandhalterin}}",
+	"group-patrollers": "Kontrolleure",
+	"group-patrollers-member": "{{GENDER:$1|Kontrolleur|Kontrolleurin}}",
+	"group-staff": "Mitarbeiter",
+	"group-staff-member": "{{GENDER:$1|Mitarbeiter|Mitarbeiterin}}",
 	"nstab-technik": "Technik"
 }
