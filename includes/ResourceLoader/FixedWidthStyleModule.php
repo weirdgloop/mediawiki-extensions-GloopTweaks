@@ -4,17 +4,17 @@ namespace MediaWiki\Extension\GloopTweaks\ResourceLoader;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
-use ResourceLoaderContext;
-use ResourceLoaderSiteStylesModule;
+use MediaWiki\ResourceLoader\Context;
+use MediaWiki\ResourceLoader\SiteStylesModule;
 
-class FixedWidthStyleModule extends ResourceLoaderSiteStylesModule {
+class FixedWidthStyleModule extends SiteStylesModule {
 	/**
 	 * @param string $titleText
-	 * @param ResourceLoaderContext $context
+	 * @param Context $context
 	 * @return null|string
 	 * @since 1.32 added the $context parameter
 	 */
-	protected function getContent( $titleText, ResourceLoaderContext $context ) {
+	protected function getContent( $titleText, Context $context ) {
 		global $wgGloopTweaksFamilyCentralDB;
 		$services = MediaWikiServices::getInstance();
 
@@ -50,10 +50,10 @@ class FixedWidthStyleModule extends ResourceLoaderSiteStylesModule {
 	/**
 	 * Get list of pages used by this module
 	 *
-	 * @param ResourceLoaderContext $context
+	 * @param Context $context
 	 * @return array[]
 	 */
-	protected function getPages( ResourceLoaderContext $context ) {
+	protected function getPages( Context $context ) {
 		$pages = [];
 		if ( $this->getConfig()->get( 'UseSiteCss' ) ) {
 			$skin = $context->getSkin();

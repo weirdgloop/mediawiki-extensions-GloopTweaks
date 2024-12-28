@@ -2,8 +2,7 @@
 
 namespace MediaWiki\Extension\GloopTweaks\ResourceLoader;
 
-use MediaWiki\MediaWikiServices;
-use ResourceLoaderContext;
+use MediaWiki\ResourceLoader\Context;
 use MediaWiki\ResourceLoader\WikiModule;
 
 class ThemeStylesModule extends WikiModule {
@@ -27,10 +26,10 @@ class ThemeStylesModule extends WikiModule {
 	/**
 	 * Get list of pages used by this module
 	 *
-	 * @param ResourceLoaderContext $context
+	 * @param Context $context
 	 * @return array[]
 	 */
-	protected function getPages( ResourceLoaderContext $context ) {
+	protected function getPages( Context $context ) {
 		$pages = [];
 		$skin = ucfirst( $context->getSkin() );
 
