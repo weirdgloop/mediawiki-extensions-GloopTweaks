@@ -27,7 +27,7 @@ class Scribunto_LuaGloopTweaksLibrary extends Scribunto_LuaLibraryBase {
 		if ( $file ) {
 			$parsedWidth = [];
 			if ( $width !== null ) {
-				$parsedWidth = Parser::parseWidthParam( $width );
+				$parsedWidth = MediaWikiServices::getInstance()->getParser()->parseWidthParam( $width );
 			}
 			$url = $file->getFullUrl();
 
