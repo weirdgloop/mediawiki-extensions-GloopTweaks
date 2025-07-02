@@ -6,7 +6,7 @@
 	},
 	"weirdgloop-privacypage": "wg:privacy",
 	"weirdgloop-changecontentmodel-text": "このページではこのWiki上のページのコンテンツモデルを変更することができます。これはごく稀な状況を除いて行う必要のない操作であり、ページのコンテンツモデルの変更はその機能を損なわせる恐れがある点にご注意ください。操作についてよく分からないことがあればシステム管理者に[[Special:Contact|お問い合わせ]]ください。",
-	"weirdgloop-emailmessage": "メッセージ:",
+	"weirdgloop-emailmessage": "メッセージ：",
 	"weirdgloop-mobile-frontend-copyright": "このサイト上のコンテンツは$1でライセンスされています。<a href=\"https://meta.weirdgloop.org/w/Project:Copyrights\">追加の規約が適用される場合があります</a>。\n\n",
 	"weirdgloop-contactpage-pagetext": "以下のフォームは、現在ご閲覧のWikiを運営するWeird Gloopへのお問い合わせにご利用いただけます。Wiki自体の問題はこのサイトの編集者または管理者にお伝えください。'''デジタルミレニアム著作権法に基づく削除要請については、[[Special:Contact/dmca|こちらのフォーム]]をご利用ください。'''",
 	"weirdgloop-newusermessage-editor": "新しいユーザーのメッセージ",
