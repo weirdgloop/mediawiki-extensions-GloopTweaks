@@ -151,6 +151,10 @@
 		},
 		"UseSFS": {
 			"value": true
+		},
+		"DefaultTheme": {
+			"value": "light",
+			"description": "The name of the theme being used as this wiki's default. {skin}.css will be loaded instead of {skin}-theme-{theme}.css when this theme is enabled."
 		}
 	},
 	"AvailableRights": [
