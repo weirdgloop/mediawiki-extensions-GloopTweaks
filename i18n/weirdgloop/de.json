@@ -27,6 +27,5 @@
 	"action-directoreditprotected": "Seiten zu bearbeiten, die als „{{int:protect-level-directoreditprotected}}“ geschützt sind",
 	"action-editstaff": "Seiten zu bearbeiten, die als „{{int:protect-level-editstaff}}“ geschützt sind",
 	"protect-level-directoreditprotected": "Nur Direktoren erlauben",
-	"protect-level-editstaff": "Nur Mitarbeiter erlauben",
-	"nstab-technik": "Technik"
+	"protect-level-editstaff": "Nur Mitarbeiter erlauben"
 }
