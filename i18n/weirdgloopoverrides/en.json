@@ -7,7 +7,7 @@
 	"weirdgloop-privacypage": "wg:privacy",
 	"weirdgloop-changecontentmodel-text": "This page allows you to change the content model of a page on this wiki. Please be aware that except under rare circumstances, this is almost never needed. Changing a page's content model may break its functionality. Please [[Special:Contact|contact]] a system administrator if you are unsure what you are doing.",
 	"weirdgloop-emailmessage": "Message:",
-	"weirdgloop-mobile-frontend-copyright": "Content on this site is licensed under $1; <a href=\"https://meta.weirdgloop.org/w/Project:Copyrights\">additional terms may apply</a>.\n\n",
+	"weirdgloop-mobile-frontend-copyright": "Content on this site is licensed under $1; <a href=\"https://meta.weirdgloop.org/w/Licensing\">additional terms may apply</a>.\n\n",
 	"weirdgloop-contactpage-pagetext": "The form below can be used to contact Weird Gloop, the operators of the wiki you are currently viewing. If you have an issue with the wiki itself, then it may make more sense to speak to an on-site editor or admin. '''If you're contacting us about a DMCA takedown request, use [[Special:Contact/dmca|this form]] instead.'''",
 	"weirdgloop-newusermessage-editor": "New user message",
 	"weirdgloop-revisionslider-help-dialog-slide1": "The revision slider helps you to navigate and compare revisions on the diff page. If you have any issues, let us know!"
