@@ -44,7 +44,7 @@ class FixedWidthStyleModule extends SiteStylesModule {
 		global $wgGloopTweaksFamilyCentralDB;
 		$lbFactory = MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
 		$lb = $lbFactory->getMainLB( $wgGloopTweaksFamilyCentralDB );
-		return $lb->getConnectionRef( DB_REPLICA, [], $wgGloopTweaksFamilyCentralDB );
+		return $lb->getConnection( DB_REPLICA, [], $wgGloopTweaksFamilyCentralDB );
 	}
 
 	/**
