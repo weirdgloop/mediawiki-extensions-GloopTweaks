@@ -6,6 +6,7 @@ use CdnCacheUpdate;
 use DeferredUpdates;
 use ErrorPageError;
 use Html;
+use MediaWiki\Api\ApiBase;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use MediaWiki\MediaWikiServices;
@@ -14,6 +15,7 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
 use OutputPage;
+use RawAction;
 use RequestContext;
 use Skin;
 use Title;
@@ -214,8 +216,20 @@ class GloopTweaksHooks {
 	 * Implement theming and add structured data for the Google Sitelinks search box.
 	 */
 	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
-		global $wgGloopTweaksAnalyticsID, $wgCloudflareDomain, $wgGloopTweaksCSP, $wgGloopTweaksCSPAnons, $wgSitename;
-		global $wgGloopTweaksEnableTheming, $wgGloopTweaksEnableLoadingFixedWidth, $wgGloopTweaksEnableStructuredData, $wgArticlePath, $wgCanonicalServer;
+		global $wgGloopTweaksAnalyticsID, $wgGloopTweaksCSP, $wgGloopTweaksCSPAnons, $wgSitename;
+		global $wgGloopTweaksEnableTheming, $wgGloopTweaksEnableLoadingFixedWidth,
+			   $wgGloopTweaksEnableStructuredData, $wgCanonicalServer, $wgDBname;
+
+		/**
+		 * Add a Cache-Tag HTTP header for Cloudflare to use, for normal page views, ?action=history (and others),
+		 * HTTP 200 redirects to this page (e.g standard MediaWiki redirects).
+		 */
+		if ( $out->getContext()->canUseWikiPage() && $out->getWikiPage()->getId() ) {
+			$cacheTags = [
+				"$wgDBname:page:{$out->getWikiPage()->getId()}"
+			];
+			$out->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ) );
+		}
 
 		// For letting user JS import from additional sources, like the Wikimedia projects, they have a longer CSP than anons.
 		if ( $wgGloopTweaksCSP !== '' ) {
@@ -441,6 +455,48 @@ class GloopTweaksHooks {
 	public static function onScribuntoExternalLibraries( $engine, array &$extraLibraries ) {
 		if ( $engine == 'lua' ) {
 			$extraLibraries['mw.ext.GloopTweaks'] = Scribunto_LuaGloopTweaksLibrary::class;
+		}
+	}
+
+	/**
+	 * @param RawAction $rawAction
+	 * @return void
+	 */
+	public static function onRawPageViewBeforeOutput( RawAction &$rawAction ) {
+		global $wgDBname;
+
+		// Add a Cache-Tag HTTP header for Cloudflare to use, for ?action=raw.
+		if ( $rawAction->getContext()->canUseWikiPage() && $rawAction->getWikiPage()->getId() ) {
+			$cacheTags = [
+				"$wgDBname:page:{$rawAction->getWikiPage()->getId()}"
+			];
+			$rawAction->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ) );
+		}
+	}
+
+	/**
+	 * @param ApiBase $module
+	 * @return void
+	 */
+	public static function onAPIAfterExecute( ApiBase $module ) {
+		global $wgDBname;
+
+		// We only need to add cache tags once, otherwise we'll keep re-running this code for every module.
+		if ( $module->getRequest()->getHeader( 'Cache-Tag' ) === false ) {
+			$pages = (array)$module->getResult()->getResultData( [ 'query', 'pages' ] );
+
+			// Add a Cache-Tag HTTP header for Cloudflare to use.
+			$cacheTags = [];
+
+			foreach ( $pages as $p2 ) {
+				if ( isset( $p2['pageid'] ) ) {
+					$cacheTags[] = "$wgDBname:page:{$p2['pageid']}";
+				}
+			}
+
+			if ( !empty( $cacheTags ) ) {
+				$module->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ) );
+			}
 		}
 	}
 }

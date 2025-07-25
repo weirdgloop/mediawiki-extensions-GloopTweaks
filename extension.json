@@ -71,7 +71,9 @@
 		"TitleSquidURLs": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onTitleSquidURLs",
 		"UploadForm:initial": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onUploadFormInitial",
 		"UserGetRightsRemove": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onUserGetRightsRemove",
-		"getUserPermissionsErrors": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::ongetUserPermissionsErrors"
+		"getUserPermissionsErrors": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::ongetUserPermissionsErrors",
+		"RawPageViewBeforeOutput": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onRawPageViewBeforeOutput",
+		"APIAfterExecute": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onAPIAfterExecute"
 	},
 	"JobClasses": {
 		"refreshLinksBatch": "MediaWiki\\Extension\\GloopTweaks\\RefreshLinksBatchJob"
