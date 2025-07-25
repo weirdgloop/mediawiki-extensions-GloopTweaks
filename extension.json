@@ -94,6 +94,12 @@
 			"value": "metawiki",
 			"description": "The database name of the Weird Gloop central wiki, which is metawiki, but can be changed."
 		},
+		"CFPurgerRedisConfig": {
+			"value": []
+		},
+		"CFPurgerRedisServer": {
+			"value": ""
+		},
 		"CFToken": {
 			"value": ""
 		},
