@@ -41,8 +41,8 @@ class RefreshLinksBatchJob extends Job implements GenericParameterJob {
 		parent::__construct( 'refreshLinksBatch', $params );
 		$this->executionFlags |= self::JOB_NO_EXPLICIT_TRX_ROUND;
 
-		$this->dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA, 'vslow' );
-		$this->dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_PRIMARY );
+		$this->dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA, 'vslow' );
+		$this->dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 	}
 
 	public function run() {

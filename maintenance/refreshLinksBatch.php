@@ -42,7 +42,7 @@ class RefreshLinksBatch extends Maintenance {
 
 	public function execute() {
 		$batchSize = $this->getBatchSize();
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA, 'vslow' );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA, 'vslow' );
 
 		$maxPage = $dbr->selectField( 'page', 'max(page_id)', '', __METHOD__ );
 		$maxRD = $dbr->selectField( 'redirect', 'max(rd_from)', '', __METHOD__ );

@@ -8,7 +8,7 @@
 	"weirdgloop-privacypage": "wg:privacy",
 	"weirdgloop-changecontentmodel-text": "本页面可以让您更改wiki页面的内容模型。注意：除了极特殊情况，这个操作几乎都没有必要。更改页面的内容模型可能会破坏它的功能。若您不确定您在做什么，请[[Special:Contact|联系]]系统管理员（只接受英文请求）。",
 	"weirdgloop-emailmessage": "消息：",
-	"weirdgloop-mobile-frontend-copyright": "本网站内容采用$1授权，<a href=\"https://meta.weirdgloop.org/w/Project:Copyrights\">附加条款亦可能应用</a>。\n\n",
+	"weirdgloop-mobile-frontend-copyright": "本网站内容采用$1授权，<a href=\"https://meta.weirdgloop.org/w/Licensing\">附加条款亦可能应用</a>。\n\n",
 	"weirdgloop-contactpage-pagetext": "下面的表单可以用来联系Weird Gloop，您正在访问的wiki的运营者。若您对wiki本身有任何问题，更好的方法是联系一位编辑者或管理员。'''如果您需要提交DMCA下架请求，请使用[[Special:Contact/dmca|这个表单]]。'''",
 	"weirdgloop-newusermessage-editor": "新用户消息",
 	"weirdgloop-revisionslider-help-dialog-slide1": "修订滑块帮助您在差异页面上导航并比较修订版本。若您有任何问题，请向我们反馈！"

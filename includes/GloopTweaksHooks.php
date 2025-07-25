@@ -217,7 +217,7 @@ class GloopTweaksHooks {
 	 */
 	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
 		global $wgGloopTweaksAnalyticsID, $wgGloopTweaksCSP, $wgGloopTweaksCSPAnons, $wgSitename;
-		global $wgGloopTweaksEnableTheming, $wgGloopTweaksEnableLoadingFixedWidth,
+		global $wgGloopTweaksEnableTheming, $wgGloopTweaksDefaultTheme, $wgGloopTweaksEnableLoadingFixedWidth,
 			   $wgGloopTweaksEnableStructuredData, $wgCanonicalServer, $wgDBname;
 
 		/**
@@ -263,19 +263,21 @@ class GloopTweaksHooks {
 			/* Theming */
 			if ( $wgGloopTweaksEnableTheming ) {
 				$legacyDarkmode = isset( $_COOKIE['darkmode'] ) && $_COOKIE['darkmode'] === 'true';
-				$theme = $_COOKIE['theme'] ?? ( $legacyDarkmode ? 'dark' : 'light' );
+				$theme = $_COOKIE['theme'] ?? ( $legacyDarkmode ? 'dark' : $wgGloopTweaksDefaultTheme );
 
-				// Light mode is the base styling, so it doesn't load a separate theme stylesheet.
-				if ( $theme === 'light' ) {
-					// Legacy non-darkmode selector.
-					$out->addBodyClasses( [ 'wgl-lightmode' ] );
-				} else {
-					if ( $theme === 'dark' ) {
-						// Legacy darkmode selector.
-						$out->addBodyClasses( [ 'wgl-darkmode' ] );
-					}
+				if ( $theme !== $wgGloopTweaksDefaultTheme ) {
+					// If the selected theme is not the default theme, load the custom theme module.
 					$out->addModuleStyles( [ "wgl.theme.$theme" ] );
 				}
+
+				if ( $theme === 'light' ) {
+					// Legacy light mode selector.
+					$out->addBodyClasses( [ 'wgl-lightmode' ] );
+				} else if ( $theme === 'dark') {
+					// Legacy dark mode selector.
+					$out->addBodyClasses( [ 'wgl-darkmode' ] );
+				}
+
 				$out->addBodyClasses( [ "wgl-theme-$theme" ] );
 			}
 
