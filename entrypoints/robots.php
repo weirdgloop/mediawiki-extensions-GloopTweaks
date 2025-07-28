@@ -30,6 +30,10 @@ function wfRobotsMain() {
     $lastModified = $rev ? $rev->getTimestamp() : null;
     $text = ( $content instanceof TextContent ) ? $content->getText() : '';
 
+	if ( $rev ) {
+		header( "Cache-Tag: $wgGloopTweaksNetworkCentralDB:page:{$rev->getPageId()}" );
+	}
+
     // Replace template strings on imported text
     $text = str_replace(
         [ '{articlePath}', '{scriptPath}' ],
