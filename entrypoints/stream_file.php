@@ -11,6 +11,8 @@ require dirname($_SERVER['SCRIPT_FILENAME']) . '/includes/WebStart.php';
 wfStreamFileMain( $_GET );
 
 function wfStreamFileMain( array $params ) {
+	global $wgDBname;
+
 	// Only allow a limited set of files as this is intended to deal with non-page requests fetching "well-known" file URLs.
 	$allowedFiles = [
 		'Apple-touch-icon.png',
@@ -28,7 +30,14 @@ function wfStreamFileMain( array $params ) {
 	$file = $repo->newFile( $fileName );
 
 	if ( $file && $file->exists() ) {
-		$repo->streamFileWithStatus( $file->getPath(), [ 'Cache-Control: max-age=300, must-revalidate, s-maxage=3600, revalidate-while-stale=300' ] );
+		$headers = [
+			'Cache-Control: max-age=300, must-revalidate, s-maxage=3600, revalidate-while-stale=300',
+		];
+		$pageIdForCache = $file->getTitle() ? $file->getTitle()->getId() : null;
+		if ( $pageIdForCache ) {
+			$headers[] = "Cache-Tag: $wgDBname:page:$pageIdForCache";
+		}
+		$repo->streamFileWithStatus( $file->getPath(), $headers );
 	}
 	// Shorter 404.
 	else {
