@@ -7,7 +7,7 @@ use DeferredUpdates;
 use ErrorPageError;
 use Html;
 use MediaWiki\Api\ApiBase;
-use MediaWiki\Api\ApiQueryBase;
+use MediaWiki\Api\ApiQuery;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use MediaWiki\MediaWikiServices;
@@ -484,8 +484,7 @@ class GloopTweaksHooks {
 	public static function onAPIAfterExecute( ApiBase $module ) {
 		global $wgDBname;
 
-		// We only need to add cache tags once, otherwise we'll keep re-running this code for every module.
-		if ( $module instanceof ApiQueryBase && $module->getRequest()->getHeader( 'Cache-Tag' ) === false ) {
+		if ( $module instanceof ApiQuery ) {
 			$pages = (array)$module->getResult()->getResultData( [ 'query', 'pages' ] );
 
 			// Add a Cache-Tag HTTP header for Cloudflare to use.
