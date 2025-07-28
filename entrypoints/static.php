@@ -14,7 +14,7 @@ function wfStaticShowError ( $status ) {
 }
 
 function wfStaticMain() {
-	global $wgScriptPath;
+	global $wgScriptPath, $wgDBname;
 
 	// REQUEST_URI is used to determine the resource to retrieve, we must fail without it.
 	if ( !isset( $_SERVER['REQUEST_URI'] ) ) {
@@ -89,6 +89,7 @@ function wfStaticMain() {
 		}
 	}
 
+	header( "Cache-Tag: $wgDBname:static" );
 	header( 'Content-Length: ' . $stat['size'] );
 	readfile( $filePath );
 }
