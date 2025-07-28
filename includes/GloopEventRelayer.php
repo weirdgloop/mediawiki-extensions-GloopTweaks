@@ -3,7 +3,7 @@
 namespace MediaWiki\Extension\GloopTweaks;
 
 use MediaWiki\MediaWikiServices;
-use Wikimedia\EventRelayer;
+use Wikimedia\EventRelayer\EventRelayer;
 use Wikimedia\ObjectCache\RedisConnectionPool;
 
 /**
