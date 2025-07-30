@@ -34,8 +34,20 @@ class GloopEventRelayer extends EventRelayer {
 
 	public function doNotify( $channel, array $events ) {
 		$services = MediaWikiServices::getInstance();
-		// This EventRelayer is for CDN URL purges only.
-		if ( $channel !== 'cdn-url-purges' ) {
+		// Handle cache tag purging.
+		if ( $channel === 'cdn-tag-purges' ) {
+			// Extract the tags to purge from the 'cdn-tag-purges' events.
+			$tags = [];
+			foreach ( $events as $event ) {
+				$tags[] = $event['tag'];
+			}
+
+			wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $tags ) );
+			$this->CloudflarePurge( $tags, 'tag' );
+
+			return true;
+		} elseif ( $channel !== 'cdn-url-purges' ) {
+			// The rest of this EventRelayer is for CDN URL purges only.
 			return false;
 		}
 
@@ -56,7 +68,7 @@ class GloopEventRelayer extends EventRelayer {
 			// Fallback to curl if cfpurger fails.
 			$useCurl = true;
 			if ( $this->redisServer ) {
-				$useCurl = !$this->CloudflarePurge( $urls );
+				$useCurl = !$this->CloudflarePurge( $urls, 'file' );
 			}
 			if ( $useCurl ) {
 				$this->CloudflareCurlPurge( $urls );
@@ -99,9 +111,10 @@ class GloopEventRelayer extends EventRelayer {
 	* Send Cloudflare purge requests via cfpurger.
 	*
 	* @param string[] $urls Array of URLs to purge.
+	* @param string   $type The purge type, either 'file' or 'tag'.
 	* @return bool Success
 	*/
-	private function CloudflarePurge( array $urls ) {
+	private function CloudflarePurge( array $urls, $type ) {
 		$conn = $this->redisPool->getConnection( $this->redisServer );
 		if ( !$conn ) {
 			wfDebugLog( 'purges_cf', __METHOD__ . ': Redis connection failed.' );
@@ -139,9 +152,9 @@ LUA;
 				$script,
 				[
 					// KEYS[1]
-					"cfpurger:queue:$zone:file:pending",
+					"cfpurger:queue:$zone:$type:pending",
 					// KEYS[2]
-					"cfpurger:queue:$zone:file:ready",
+					"cfpurger:queue:$zone:$type:ready",
 					// ARGV
 					...$urls # ARGV
 				],
