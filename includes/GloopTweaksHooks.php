@@ -487,6 +487,12 @@ class GloopTweaksHooks {
 		if ( $module instanceof ApiQuery ) {
 			$pages = (array)$module->getResult()->getResultData( [ 'query', 'pages' ] );
 
+			// Do not try to add cache tags to API responses that return more than one result.
+			// These types of requests probably aren't CDN cached anyway.
+			if ( count( $pages ) > 1 ) {
+				return;
+			}
+
 			// Add a Cache-Tag HTTP header for Cloudflare to use.
 			$cacheTags = [];
 
