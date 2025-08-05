@@ -43,9 +43,7 @@ class GloopEventRelayer extends EventRelayer {
 			}
 
 			wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $tags ) );
-			$this->CloudflarePurge( $tags, 'tag' );
-
-			return true;
+			return $this->CloudflarePurge( $tags, 'tag' );
 		} elseif ( $channel !== 'cdn-url-purges' ) {
 			// The rest of this EventRelayer is for CDN URL purges only.
 			return false;
@@ -65,12 +63,10 @@ class GloopEventRelayer extends EventRelayer {
 
 			wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $urls ) );
 
-			// Fallback to curl if cfpurger fails.
-			$useCurl = true;
+			// Fallback to curl if cfpurger isn't setup.
 			if ( $this->redisServer ) {
-				$useCurl = !$this->CloudflarePurge( $urls, 'file' );
-			}
-			if ( $useCurl ) {
+				return $this->CloudflarePurge( $urls, 'file' );
+			} else {
 				$this->CloudflareCurlPurge( $urls );
 			}
 		}
