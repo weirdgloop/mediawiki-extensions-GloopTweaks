@@ -31,7 +31,7 @@ function wfRobotsMain() {
     $text = ( $content instanceof TextContent ) ? $content->getText() : '';
 
 	if ( $rev ) {
-		header( "Cache-Tag: $wgGloopTweaksNetworkCentralDB:page:{$rev->getPageId()}" );
+		header( "Cache-Tag: $wgGloopTweaksNetworkCentralDB:page:{$rev->getPageId($wgGloopTweaksNetworkCentralDB)}" );
 	}
 
     // Replace template strings on imported text
