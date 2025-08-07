@@ -139,9 +139,9 @@ LUA;
 				$script,
 				[
 					// KEYS[1]
-					"cfpurger:queue:$zone:$$method:pending",
+					"cfpurger:queue:$zone:$method:pending",
 					// KEYS[2]
-					"cfpurger:queue:$zone:$$method:ready",
+					"cfpurger:queue:$zone:$method:ready",
 					// ARGV
 					...$entries # ARGV
 				],
