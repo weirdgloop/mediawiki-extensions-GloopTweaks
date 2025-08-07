@@ -8,7 +8,6 @@ use Wikimedia\ObjectCache\RedisConnectionPool;
 
 /**
  * EventRelayer to perform Cloudflare purging.
- * Note: This performs purges directly, so if purging fails for any reason, the purges are lost.
  *
  */
 class GloopEventRelayer extends EventRelayer {
@@ -32,58 +31,32 @@ class GloopEventRelayer extends EventRelayer {
 		}
 	}
 
+	/**
+	 * @param string $channel
+	 * @param array $events List of event data maps
+	 * @return bool Success
+	 */
 	public function doNotify( $channel, array $events ) {
-		$services = MediaWikiServices::getInstance();
-		// Handle cache tag purging.
 		if ( $channel === 'cdn-tag-purges' ) {
-			// Extract the tags to purge from the 'cdn-tag-purges' events.
-			$tags = [];
-			foreach ( $events as $event ) {
-				$tags[] = $event['tag'];
-			}
-
-			wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $tags ) );
-			return $this->CloudflarePurge( $tags, 'tag' );
-		} elseif ( $channel !== 'cdn-url-purges' ) {
-			// The rest of this EventRelayer is for CDN URL purges only.
+			return $this->purgeByMethod( $events, 'tag' );
+		} elseif ( $channel === 'cdn-url-purges' ) {
+			// Channel is 'cdn-url-purges' instead of 'cdn-file-purges' for compatibility with upstream mediawiki.
+			return $this->purgeByMethod( $events, 'file' );
+		} else {
 			return false;
 		}
-
-		// Extract the URLs to purge from the 'cdn-url-purges' events.
-		$urls = [];
-		foreach ( $events as $event ) {
-			// File purges include only hostname, so the URL must be expanded.
-			$urls[] = (string)$services->getUrlUtils()->expand( $event['url'], PROTO_INTERNAL );
-		}
-
-		// Purge the URLs from Cloudflare.
-		if ( count( $urls ) > 0 ) {
-			// Deduplicate URLs.
-			$urls = array_unique( $urls );
-
-			wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $urls ) );
-
-			// Fallback to curl if cfpurger isn't setup.
-			if ( $this->redisServer ) {
-				return $this->CloudflarePurge( $urls, 'file' );
-			} else {
-				$this->CloudflareCurlPurge( $urls );
-			}
-		}
-
-		return true;
 	}
 
 	/**
 	* Send Cloudflare purge requests via curl.
 	*
-	* @param string[] $urls Array of URLs to purge.
+	* @param string[] $urls List of URLs to purge
 	*/
-	private function CloudflareCurlPurge( array $urls ) {
+	private function purgeViaCurl( array $urls ) {
 		// Break the purge requests into chunks sized to Cloudflare's per-request URL limit.
 		$chunks = array_chunk( $urls, self::MAX_URLS_PER_REQUEST );
 
-		// Prepare cURL
+		// Prepare curl.
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
@@ -104,13 +77,29 @@ class GloopEventRelayer extends EventRelayer {
 	}
 
 	/**
-	* Send Cloudflare purge requests via cfpurger.
-	*
-	* @param string[] $urls Array of URLs to purge.
-	* @param string   $type The purge type, either 'file' or 'tag'.
-	* @return bool Success
-	*/
-	private function CloudflarePurge( array $urls, $type ) {
+	 * @param array $events List of event data maps
+	 * @param string $method Cloudflare purge method
+	 * @return bool Success
+	 */
+	private function purgeByMethod( array $events, string $method ) {
+		// Extract the entries to purge from the 'cdn-{$method}-purges' events, but
+		// 'file' events are keyed 'url' for compatibility with upstream mediawiki.
+		$key = ( $method === 'file' ) ? 'url' : $method;
+		$entries = [];
+		foreach ( $events as $event ) {
+			$entries[] = $event[$key];
+		}
+
+		wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $entries ) );
+
+		// Legacy support for falling back to purging via curl for 'file' events if cfpurger isn't configured.
+		if ( !$this->redisServer && $method === 'file' ) {
+			// Purge via curl is fire-and-forget, so if purging fails for any reason, the purges are lost.
+			$this->purgeViaCurl( $entries );
+			return true;
+		}
+
+		// Obtain redis connection.
 		$conn = $this->redisPool->getConnection( $this->redisServer );
 		if ( !$conn ) {
 			wfDebugLog( 'purges_cf', __METHOD__ . ': Redis connection failed.' );
