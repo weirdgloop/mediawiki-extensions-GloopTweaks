@@ -37,7 +37,9 @@ class GloopEventRelayer extends EventRelayer {
 	 * @return bool Success
 	 */
 	public function doNotify( $channel, array $events ) {
-		if ( $channel === 'cdn-tag-purges' ) {
+		if ( $channel === 'cdn-prefix-purges' ) {
+			return $this->purgeByMethod( $events, 'prefix' );
+		} elseif ( $channel === 'cdn-tag-purges' ) {
 			return $this->purgeByMethod( $events, 'tag' );
 		} elseif ( $channel === 'cdn-url-purges' ) {
 			// Channel is 'cdn-url-purges' instead of 'cdn-file-purges' for compatibility with upstream mediawiki.
