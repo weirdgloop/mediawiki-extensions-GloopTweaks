@@ -10,7 +10,10 @@ use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
+use ManualLogEntry;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\ProperPageIdentity;
+use MediaWiki\Permissions\Authority;
 use MediaWiki\ResourceLoader\ResourceLoader;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
@@ -53,6 +56,12 @@ class GloopTweaksHooks {
 		foreach( $keysToOverride as $key ) {
 			$keys[$key] = "weirdgloop-$key";
 		}
+	}
+
+	// Work around page id for a title no longer existing by the time mediawiki purges after page deletion.
+	public static function onPageDeleteComplete( ProperPageIdentity $page, Authority $deleter, string $reason, int $pageID, RevisionRecord $deletedRev, ManualLogEntry $logEntry, int $archivedRevisionCount ) {
+		global $wgDBname;
+		CdnCacheUpdate::purgeGloop( [ "$wgDBname:page:$pageID" ], 'tag' );
 	}
 
 	// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the contact-filter-regexes global cache key.

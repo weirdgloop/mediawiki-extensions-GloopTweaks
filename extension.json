@@ -62,6 +62,7 @@
 		"LocalFilePurgeThumbnails": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onLocalFilePurgeThumbnails",
 		"MessageCacheFetchOverrides": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onMessageCacheFetchOverrides",
 		"OpenSearchUrls": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onOpenSearchUrls",
+		"PageDeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageDeleteComplete",
 		"PageSaveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageSaveComplete",
 		"ResourceLoaderRegisterModules": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onResourceLoaderRegisterModules",
 		"ScribuntoExternalLibraries": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onScribuntoExternalLibraries",
