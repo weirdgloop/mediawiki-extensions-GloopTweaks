@@ -139,11 +139,11 @@ LUA;
 				$script,
 				[
 					// KEYS[1]
-					"cfpurger:queue:$zone:$type:pending",
+					"cfpurger:queue:$zone:$$method:pending",
 					// KEYS[2]
-					"cfpurger:queue:$zone:$type:ready",
+					"cfpurger:queue:$zone:$$method:ready",
 					// ARGV
-					...$urls # ARGV
+					...$entries # ARGV
 				],
 				// Number of KEYS before ARGV.
 				2
