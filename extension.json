@@ -64,6 +64,7 @@
 		"OpenSearchUrls": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onOpenSearchUrls",
 		"PageDeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageDeleteComplete",
 		"PageSaveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageSaveComplete",
+		"PageUndeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageUndeleteComplete",
 		"ResourceLoaderRegisterModules": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onResourceLoaderRegisterModules",
 		"ScribuntoExternalLibraries": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onScribuntoExternalLibraries",
 		"SkinAddFooterLinks": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onSkinAddFooterLinks",

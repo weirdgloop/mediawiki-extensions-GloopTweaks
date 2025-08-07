@@ -66,6 +66,11 @@ class GloopTweaksHooks {
 
 	// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the contact-filter-regexes global cache key.
 	public static function onPageSaveComplete( WikiPage $wikiPage, UserIdentity $user, string $summary, int $flags, RevisionRecord $revisionRecord, EditResult $editResult ) {
+		if ( $editResult->isNew() ) {
+			// Purge by tag doesn't do anything for page creation since the page might already be cached, so additionally purge by prefix.
+			$parsed = parse_url( $wikiPage->getTitle()->getFullURL() );
+			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
+		}
 		if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
 			$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 
@@ -76,6 +81,16 @@ class GloopTweaksHooks {
 				)
 			);
 		}
+	}
+
+	// Purge by tag doesn't do anything for page creation since the page might already be cached, so additionally purge by prefix.
+	public static function onPageUndeleteComplete( ProperPageIdentity $page, Authority $restorer, string $reason, RevisionRecord $restoredRev, ManualLogEntry $logEntry, int $restoredRevisionCount, bool $created, array $restoredPageIds ) {
+		global $wgDBname;
+		$tags = [];
+		foreach( $restoredPageIds as $pageID ) {
+			$tags[] = "$wgDBname:page:$pageID";
+		}
+		CdnCacheUpdate::purgeGloop( $tags, 'tag' );
 	}
 
 	/**
