@@ -85,8 +85,10 @@ class GloopTweaksHooks {
 
 	// Purge by tag doesn't do anything for page creation since the page might already be cached, so additionally purge by prefix.
 	public static function onPageUndeleteComplete( ProperPageIdentity $page, Authority $restorer, string $reason, RevisionRecord $restoredRev, ManualLogEntry $logEntry, int $restoredRevisionCount, bool $created, array $restoredPageIds ) {
-		$parsed = parse_url( Title::newFromPageIdentity( $page )->getFullURL() );
-		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
+		if ( $created ) {
+			$parsed = parse_url( Title::newFromPageIdentity( $page )->getFullURL() );
+			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
+		}
 	}
 
 	/**
