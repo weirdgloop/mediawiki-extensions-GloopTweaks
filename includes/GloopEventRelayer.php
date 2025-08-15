@@ -104,7 +104,7 @@ class GloopEventRelayer extends EventRelayer {
 		// Obtain redis connection.
 		$conn = $this->redisPool->getConnection( $this->redisServer );
 		if ( !$conn ) {
-			wfDebugLog( 'purges_cf', __METHOD__ . ': Redis connection failed.' );
+			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis connection failed.' );
 			return false;
 		}
 
@@ -149,7 +149,7 @@ LUA;
 				2
 			);
 		} catch ( RedisException $e ) {
-			wfDebugLog( 'purges_cf', __METHOD__ . ': Redis exception: ' . $e->getMessage() );
+			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis exception: ' . $e->getMessage() );
 			return false;
 		}
 
