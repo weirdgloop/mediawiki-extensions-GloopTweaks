@@ -63,6 +63,7 @@
 		"MessageCacheFetchOverrides": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onMessageCacheFetchOverrides",
 		"OpenSearchUrls": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onOpenSearchUrls",
 		"PageDeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageDeleteComplete",
+		"PageMoveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageMoveComplete",
 		"PageSaveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageSaveComplete",
 		"PageUndeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageUndeleteComplete",
 		"ResourceLoaderRegisterModules": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onResourceLoaderRegisterModules",

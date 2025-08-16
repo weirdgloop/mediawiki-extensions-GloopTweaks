@@ -12,6 +12,7 @@ use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use ManualLogEntry;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Linker\LinkTarget;
 use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\ResourceLoader\ResourceLoader;
@@ -62,6 +63,12 @@ class GloopTweaksHooks {
 	public static function onPageDeleteComplete( ProperPageIdentity $page, Authority $deleter, string $reason, int $pageID, RevisionRecord $deletedRev, ManualLogEntry $logEntry, int $archivedRevisionCount ) {
 		global $wgDBname;
 		CdnCacheUpdate::purgeGloop( [ "$wgDBname:page:$pageID" ], 'tag' );
+	}
+
+	// Purge by tag doesn't do anything for page created by move since the page might already be cached, so additionally purge by prefix.
+	public static function onPageMoveComplete( LinkTarget $old, LinkTarget $new, UserIdentity $userIdentity, int $pageid, int $redirid, string $reason, RevisionRecord $revision ) {
+		$parsed = parse_url( Title::castFromLinkTarget( $new )->getFullURL() );
+		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 	}
 
 	// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the contact-filter-regexes global cache key.
