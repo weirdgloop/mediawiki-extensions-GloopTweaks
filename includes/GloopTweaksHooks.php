@@ -19,6 +19,7 @@ use MediaWiki\ResourceLoader\ResourceLoader;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
+use Article;
 use OutputPage;
 use RawAction;
 use RequestContext;
@@ -243,23 +244,43 @@ class GloopTweaksHooks {
 	}
 
 	/**
+	 * @param Article $article
+	 * @param bool|ParserOutput|null &$outputDone
+	 * @param bool &$pcache
+	 * @return void
+	 */
+	public static function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
+		global $wgDBname;
+
+		/**
+		 * Add a Cache-Tag HTTP header for Cloudflare to use, for normal page views, ?action=history (and others),
+		 * HTTP 200 redirects to this page (e.g standard MediaWiki redirects).
+		 */
+		$cacheTags = [];
+		$id = $article->getTitle()->getArticleID();
+		if ( $id ) {
+			$cacheTags[] = "$wgDBname:page:{$id}";
+		}
+		// Purge the source page as well for redirected pages.
+		$redirectedFrom = $article->getRedirectedFrom();
+		if ( $redirectedFrom ) {
+			$id = $redirectedFrom->getArticleID();
+			if ( $id ) {
+				$cacheTags[] = "$wgDBname:page:{$id}";
+			}
+		}
+		if ( count( $cacheTags ) > 0 ) {
+			$article->getContext()->getOutput()->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ), false );
+		}
+	}
+
+	/**
 	 * Implement theming and add structured data for the Google Sitelinks search box.
 	 */
 	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
 		global $wgGloopTweaksAnalyticsID, $wgGloopTweaksCSP, $wgGloopTweaksCSPAnons, $wgSitename;
 		global $wgGloopTweaksEnableTheming, $wgGloopTweaksDefaultTheme, $wgGloopTweaksEnableLoadingFixedWidth,
 			   $wgGloopTweaksEnableStructuredData, $wgCanonicalServer, $wgDBname;
-
-		/**
-		 * Add a Cache-Tag HTTP header for Cloudflare to use, for normal page views, ?action=history (and others),
-		 * HTTP 200 redirects to this page (e.g standard MediaWiki redirects).
-		 */
-		if ( $out->getContext()->canUseWikiPage() && $out->getWikiPage()->getId() ) {
-			$cacheTags = [
-				"$wgDBname:page:{$out->getWikiPage()->getId()}"
-			];
-			$out->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ) );
-		}
 
 		// For letting user JS import from additional sources, like the Wikimedia projects, they have a longer CSP than anons.
 		if ( $wgGloopTweaksCSP !== '' ) {
@@ -502,7 +523,7 @@ class GloopTweaksHooks {
 			$cacheTags = [
 				"$wgDBname:page:{$rawAction->getWikiPage()->getId()}"
 			];
-			$rawAction->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ) );
+			$rawAction->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ), false );
 		}
 	}
 
@@ -532,7 +553,7 @@ class GloopTweaksHooks {
 			}
 
 			if ( !empty( $cacheTags ) ) {
-				$module->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ) );
+				$module->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ), false );
 			}
 		}
 	}
