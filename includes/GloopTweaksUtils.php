@@ -47,6 +47,20 @@ class GloopTweaksUtils {
 	}
 
 	/**
+	 * Adds the Cache-Tag header to the request.
+	 */
+	public static function addCacheTag( &$request, $cacheTags ) {
+		global $wgGloopTweaksCacheTagDebug;
+		if ( count( $cacheTags ) > 0 ) {
+			$request->response()->header( 'Cache-Tag:' . implode( ',', $cacheTags ), false );
+			// Cloudflare strips Cache-Tag from the response, so it's useful to add it in another header for debugging.
+			if ( $wgGloopTweaksCacheTagDebug ) {
+				$request->response()->header( 'X-Cache-Tag:' . implode( ',', $cacheTags ), false );
+			}
+		}
+	}
+
+	/**
 	 * Implements spam filter for Special:Contact, checks against [[MediaWiki:Weirdgloop-contact-filter]] on metawiki. Regex per line and use '#' for comments.
 	 *
 	 * @param string $text - The message text to check for spam.

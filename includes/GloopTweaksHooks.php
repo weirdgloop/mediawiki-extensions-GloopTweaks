@@ -269,9 +269,8 @@ class GloopTweaksHooks {
 				$cacheTags[] = "$wgDBname:page:{$id}";
 			}
 		}
-		if ( count( $cacheTags ) > 0 ) {
-			$article->getContext()->getOutput()->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ), false );
-		}
+
+		GloopTweaksUtils::addCacheTag( $article->getContext()->getOutput()->getRequest(), $cacheTags );
 	}
 
 	/**
@@ -523,7 +522,7 @@ class GloopTweaksHooks {
 			$cacheTags = [
 				"$wgDBname:page:{$rawAction->getWikiPage()->getId()}"
 			];
-			$rawAction->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ), false );
+			GloopTweaksUtils::addCacheTag( $rawAction->getRequest(), $cacheTags );
 		}
 	}
 
@@ -552,9 +551,7 @@ class GloopTweaksHooks {
 				}
 			}
 
-			if ( !empty( $cacheTags ) ) {
-				$module->getRequest()->response()->header( "Cache-Tag:" . implode( ',', $cacheTags ), false );
-			}
+			GloopTweaksUtils::addCacheTag( $module->getRequest(), $cacheTags );
 		}
 	}
 }
