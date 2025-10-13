@@ -534,7 +534,7 @@ class GloopTweaksHooks {
 		global $wgDBname;
 
 		if ( $module instanceof ApiQuery ) {
-			$pages = (array)$module->getResult()->getResultData( [ 'query', 'pages' ] );
+			$pages = (array)$module->getResult()->getResultData( [ 'query', 'pages' ], [ 'Strip' => 'base' ] );
 
 			// Do not try to add cache tags to API responses that return more than one result.
 			// These types of requests probably aren't CDN cached anyway.
