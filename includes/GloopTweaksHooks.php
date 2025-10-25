@@ -270,7 +270,8 @@ class GloopTweaksHooks {
 			}
 		}
 
-		GloopTweaksUtils::addCacheTag( $article->getContext()->getOutput()->getRequest(), $cacheTags );
+		$request = $article->getContext()->getOutput()->getRequest();
+		GloopTweaksUtils::addCacheTag( $request, $cacheTags );
 	}
 
 	/**
@@ -522,7 +523,8 @@ class GloopTweaksHooks {
 			$cacheTags = [
 				"$wgDBname:page:{$rawAction->getWikiPage()->getId()}"
 			];
-			GloopTweaksUtils::addCacheTag( $rawAction->getRequest(), $cacheTags );
+			$request = $rawAction->getRequest();
+			GloopTweaksUtils::addCacheTag( $request, $cacheTags );
 		}
 	}
 
@@ -551,7 +553,8 @@ class GloopTweaksHooks {
 				}
 			}
 
-			GloopTweaksUtils::addCacheTag( $module->getRequest(), $cacheTags );
+			$request = $module->getRequest();
+			GloopTweaksUtils::addCacheTag( $request, $cacheTags );
 		}
 	}
 }
