@@ -54,6 +54,7 @@
 		}
 	},
 	"Hooks": {
+		"AfterImportPage": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onAfterImportPage",
 		"ArticleViewHeader": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onArticleViewHeader",
 		"BeforePageDisplay": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onBeforePageDisplay",
 		"ContactForm": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onContactPage",

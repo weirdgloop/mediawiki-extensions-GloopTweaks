@@ -60,6 +60,12 @@ class GloopTweaksHooks {
 		}
 	}
 
+	public static function onAfterImportPage( $title, $origTitle, $revCount, $sRevCount, $pageInfo ) {
+		// Purge by tag doesn't do anything for page creation since the page might already be cached, so additionally purge by prefix.
+		$parsed = parse_url( $title->getFullURL() );
+		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
+	}
+
 	// Work around page id for a title no longer existing by the time mediawiki purges after page deletion.
 	public static function onPageDeleteComplete( ProperPageIdentity $page, Authority $deleter, string $reason, int $pageID, RevisionRecord $deletedRev, ManualLogEntry $logEntry, int $archivedRevisionCount ) {
 		global $wgDBname;
