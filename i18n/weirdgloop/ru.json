@@ -4,5 +4,8 @@
 			"BabylonAS"
 		]
 	},
-	"weirdgloop-copyright": "Содержимое сайта доступно по лицензии $1; [https://meta.weirdgloop.org/w/Licensing могут действовать отдельные условия]."
+	"weirdgloop-copyright": "Содержимое сайта доступно по лицензии $1; [https://meta.weirdgloop.org/w/Licensing могут действовать отдельные условия].",
+	"group-ipblock-exempt": "Исключения из IP-блокировок",
+	"group-ipblock-exempt-member": "{{GENDER:$1|исключение из IP-блокировок}}",
+	"grouppage-ipblock-exempt": "{{ns:project}}:Исключение из IP-блокировок"
 }
