@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"minejango2"
+		]
+	},
+	"weirdgloop-privacypage": "wg:privacy",
+	"weirdgloop-changecontentmodel-text": "이 페이지는 본 위키 페이지의 콘텐츠 모델을 바꿀 수 있습니다. 드문 경우를 제외하면, 거의 필요하지 않습니다. 페이지의 콘텐츠 모델을 바꾸면 해당 기능을 고장낼 수 있습니다. 만일 귀하의 행동에 확신이 없으시다면, 시스템 관리자에게 [[Special:Contact|문의]]해 주세요.",
+	"weirdgloop-emailmessage": "메시지:",
+	"weirdgloop-mobile-frontend-copyright": "사이트의 콘텐츠는 $1 라이선스를 따릅니다. <a href=\"https://meta.weirdgloop.org/w/Licensing\">추가 약관이 적용될 수 있습니다</a>.\n\n",
+	"weirdgloop-contactpage-pagetext": "아래 양식은 현재 보고 있는 위키의 운영자인 Weird Gloop에 문의할 때 사용될 수 있습니다. 위키 자체의 문제를 겪고 계신다면, 사이트 내 편집자나 관리자에게 말하는 것이 합리적일 수 있습니다. '''DMCA 게시 중단 요청에 관한 문의 중이시라면, [[Special:Contact/dmca|이 양식]]을 대신 이용해 주세요.'''",
+	"weirdgloop-newusermessage-editor": "새 사용자 메시지",
+	"weirdgloop-revisionslider-help-dialog-slide1": "판 슬라이더는 문서 차이 페이지에서 문서의 판 역사를 탐색하고 비교할 때 유용합니다. 문제점을 발견했다면, 말씀 주세요!"
+}
