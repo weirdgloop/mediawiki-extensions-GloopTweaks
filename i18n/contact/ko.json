@@ -1,0 +1,20 @@
+{
+	"@metadata": {
+		"authors": [
+			"minejango2"
+		]
+	},
+	"weirdgloop-contactpage-disclaimer": "여기서 보낸 모든 정보는 위키의 관리자가 아닌, 이 웹사이트를 관리하는 [https://weirdgloop.org Weird Gloop] 사에 전달됩니다. 대부분의 문제는, 지역 내 위키 관리진들에게 연락해야 합니다.",
+	"weirdgloop-contactpage-dmca-affiliation": "본인은...",
+	"weirdgloop-contactpage-dmca-affiliation-me": "본인은 저작권자입니다",
+	"weirdgloop-contactpage-dmca-affiliation-rep": "본인은 저작권자의 대리인 혹은 대표자입니다",
+	"weirdgloop-contactpage-dmca-address": "귀하의 전체 우편 주소",
+	"weirdgloop-contactpage-dmca-phone": "귀하의 전화번호",
+	"weirdgloop-contactpage-dmca-src": "귀하가 '''침해'''가 발생되었다고 주장하는 원본 저작물의 링크 (줄 당 하나씩)",
+	"weirdgloop-contactpage-dmca-material": "귀하를 '''침해'''하고 있다는 저작물의 링크 (줄 당 하나씩)",
+	"weirdgloop-emailmessage-dmca": "추가 정보",
+	"weirdgloop-contactpage-dmca-faith": "본인은 저작권자, 관련인 혹은 법률이 이 콘텐츠의 사용을 승인하지 않는다고 선의로 믿습니다.",
+	"weirdgloop-contactpage-dmca-accuracy": "본인은 이 신고서 속 모든 정보가 사실임을 알리며, 본인은 저작권자나 저작권자의 인증된 대리인입니다.",
+	"weirdgloop-contactpage-dmca-release": "본인은 Weird Gloop이 적절한 교정 후, 본 신고서 전체나 일부를 관련 위키 커뮤니티 관리자와 공유하거나 대중에 공개하는 것에 동의합니다.",
+	"weirdgloop-contactpage-dmca-signature": "전자 서명"
+}
