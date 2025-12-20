@@ -2,24 +2,25 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use Article;
 use CdnCacheUpdate;
 use DeferredUpdates;
 use ErrorPageError;
 use Html;
+use ManualLogEntry;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
-use ManualLogEntry;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Message\Message;
 use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\ResourceLoader\ResourceLoader;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
-use Article;
 use OutputPage;
 use RawAction;
 use RequestContext;
@@ -110,15 +111,14 @@ class GloopTweaksHooks {
 	 *
 	 * @param Title $title
 	 * @param string $type
-	 * @param string &$msg
-	 * @param string &$link
+	 * @param MessageSpecifier &$msgSpec
 	 */
-	public static function onSkinCopyrightFooter( $title, $type, &$msg, &$link ) {
+	public static function onSkinCopyrightFooterMessage( $title, $type, &$msgSpec ) {
 		global $wgGloopTweaksEnableMessageOverrides;
 
 		if ($wgGloopTweaksEnableMessageOverrides) {
 			if ( $type !== 'history' ) {
-				$msg = 'weirdgloop-copyright';
+				$msgSpec = Message::newFromSpecifier( 'weirdgloop-copyright' );
 			}
 		}
 	}
