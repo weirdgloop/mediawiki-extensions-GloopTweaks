@@ -219,7 +219,7 @@ class GloopTweaksHooks {
 
 		$userRepo = MediaWikiServices::getInstance()->getService( 'OATHUserRepository' );
 		$oathUser = $userRepo->findByUser( $user );
-		if ( $oathUser->getModule() === null ) {
+		if ( !$oathUser->isTwoFactorAuthEnabled() ) {
 			// No 2FA, remove sensitive user rights.
 			$rights = array_diff( $rights, $wgGloopTweaksSensitiveRights );
 		}
