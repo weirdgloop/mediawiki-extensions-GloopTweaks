@@ -467,10 +467,14 @@ class GloopTweaksHooks {
 		global $wgCanonicalServer, $wgGloopTweaksNetworkCentralDB, $wgDBname;
 		$dbkey = $title->getPrefixedDBKey();
 		// MediaWiki:Robots.txt on metawiki is global.
-		if ( $wgDBname === $wgGloopTweaksNetworkCentralDB && $dbkey === 'MediaWiki:Robots.txt' ) {
-			// Purge each wiki's /robots.txt route.
-			foreach( WikiMap::getCanonicalServerInfoForAllWikis() as $serverInfo ) {
-				$urls[] = $serverInfo['url'] . '/robots.txt';
+		if ( $dbkey === 'MediaWiki:Robots.txt' ) {
+			if ( $wgGloopTweaksNetworkCentralDB && $wgDBname === $wgGloopTweaksNetworkCentralDB ) {
+				// Purge each wiki's /robots.txt route.
+				foreach( WikiMap::getCanonicalServerInfoForAllWikis() as $serverInfo ) {
+					$urls[] = $serverInfo['url'] . '/robots.txt';
+				}
+			} else {
+				$urls[] = $wgCanonicalServer . '/robots.txt';
 			}
 		} elseif ( $dbkey === 'File:Apple-touch-icon.png' ) {
 			$urls[] = $wgCanonicalServer . '/apple-touch-icon.png';

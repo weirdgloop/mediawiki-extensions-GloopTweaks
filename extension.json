@@ -92,11 +92,11 @@
 			"value": ""
 		},
 		"FamilyCentralDB": {
-			"value": "",
+			"value": false,
 			"description": "The database name of the central wiki in the family. Typically, this is something like en_rswiki."
 		},
 		"NetworkCentralDB": {
-			"value": "metawiki",
+			"value": false,
 			"description": "The database name of the Weird Gloop central wiki, which is metawiki, but can be changed."
 		},
 		"CacheTagDebug": {

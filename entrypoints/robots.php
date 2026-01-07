@@ -12,7 +12,7 @@ require dirname($_SERVER['SCRIPT_FILENAME']) . '/includes/WebStart.php';
 wfRobotsMain();
 
 function wfRobotsMain() {
-    global $wgGloopTweaksNetworkCentralDB, $wgCanonicalServer, $wgScriptPath, $wgArticlePath, $wgGloopTweaksNoRobots, $wgNamespaceRobotPolicies;
+    global $wgGloopTweaksNetworkCentralDB, $wgDBname, $wgCanonicalServer, $wgScriptPath, $wgArticlePath, $wgGloopTweaksNoRobots, $wgNamespaceRobotPolicies;
 
     if ( $wgGloopTweaksNoRobots ) {
         header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=300, revalidate-while-stale=300' );
@@ -31,7 +31,8 @@ function wfRobotsMain() {
     $text = ( $content instanceof TextContent ) ? $content->getText() : '';
 
 	if ( $rev ) {
-		header( "Cache-Tag: $wgGloopTweaksNetworkCentralDB:page:{$rev->getPageId($wgGloopTweaksNetworkCentralDB)}" );
+        $wiki = $wgGloopTweaksNetworkCentralDB ?? $wgDBname;
+		header( "Cache-Tag: $wiki:page:{$rev->getPageId($wiki)}" );
 	}
 
     // Replace template strings on imported text
