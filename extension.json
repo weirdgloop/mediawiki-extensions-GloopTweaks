@@ -31,7 +31,7 @@
 		]
 	},
 	"requires": {
-		"MediaWiki": ">= 1.41.0"
+		"MediaWiki": ">= 1.45.0"
 	},
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\GloopTweaks\\": "includes/"
