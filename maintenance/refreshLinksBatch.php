@@ -22,7 +22,7 @@
 
 namespace MediaWiki\Extension\GloopTweaks\Maintenance;
 
-use Maintenance;
+use MediaWiki\Maintenance\Maintenance;
 use MediaWiki\Extension\GloopTweaks\RefreshLinksBatchJob;
 use MediaWiki\MediaWikiServices;
 

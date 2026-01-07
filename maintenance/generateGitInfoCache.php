@@ -2,8 +2,8 @@
 
 namespace MediaWiki\Extension\GloopTweaks\Maintenance;
 
-use GitInfo;
-use Maintenance;
+use MediaWiki\Utils\GitInfo;
+use MediaWiki\Maintenance\Maintenance;
 
 if ( getenv( 'MW_INSTALL_PATH' ) ) {
 	$IP = getenv( 'MW_INSTALL_PATH' );

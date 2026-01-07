@@ -2,15 +2,15 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
-use CdnCacheUpdate;
-use DeferredUpdates;
-use ErrorPageError;
-use Html;
+use MediaWiki\Deferred\CdnCacheUpdate;
+use MediaWiki\Deferred\DeferredUpdates;
+use MediaWiki\Exception\ErrorPageError;
+use MediaWiki\Html\Html;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
-use ManualLogEntry;
+use MediaWiki\Logging\ManualLogEntry;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\Page\ProperPageIdentity;
@@ -19,14 +19,14 @@ use MediaWiki\ResourceLoader\ResourceLoader;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\User\UserIdentity;
-use Article;
-use OutputPage;
-use RawAction;
-use RequestContext;
-use Skin;
-use Title;
-use WikiMap;
-use WikiPage;
+use MediaWiki\Page\Article;
+use MediaWiki\Output\OutputPage;
+use MediaWiki\Actions\RawAction;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\Skin\Skin;
+use MediaWiki\Title\Title;
+use MediaWiki\WikiMap\WikiMap;
+use MediaWiki\Page\WikiPage;
 
 /**
  * Hooks for GloopTweaks extension

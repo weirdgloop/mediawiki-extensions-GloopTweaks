@@ -4,7 +4,7 @@ namespace MediaWiki\Extension\GloopTweaks;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
-use TextContent;
+use MediaWiki\Content\TextContent;
 use Wikimedia\AtEase\AtEase;
 
 class GloopTweaksUtils {

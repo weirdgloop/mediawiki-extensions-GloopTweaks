@@ -32,15 +32,15 @@
 namespace MediaWiki\Extension\GloopTweaks\Maintenance;
 
 use FilesystemIterator;
-use Maintenance;
+use MediaWiki\Maintenance\Maintenance;
 use MediaWiki\MediaWikiServices;
-use MWException;
+use MediaWiki\Exception\MWException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\IResultWrapper;
-use WikiMap;
+use MediaWiki\WikiMap\WikiMap;
 
 if ( getenv( 'MW_INSTALL_PATH' ) ) {
 	$IP = getenv( 'MW_INSTALL_PATH' );

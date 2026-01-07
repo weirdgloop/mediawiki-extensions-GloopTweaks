@@ -3,7 +3,7 @@
 
 namespace MediaWiki\Extension\GloopTweaks\Maintenance;
 
-use Maintenance;
+use MediaWiki\Maintenance\Maintenance;
 use SvgHandler;
 
 if ( getenv( 'MW_INSTALL_PATH' ) ) {

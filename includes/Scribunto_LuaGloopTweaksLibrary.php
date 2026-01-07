@@ -3,8 +3,8 @@
 namespace MediaWiki\Extension\GloopTweaks;
 
 use MediaWiki\MediaWikiServices;
-use Parser;
-use Scribunto_LuaLibraryBase;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LibraryBase;
 
 class Scribunto_LuaGloopTweaksLibrary extends Scribunto_LuaLibraryBase {
 	public function register() {
