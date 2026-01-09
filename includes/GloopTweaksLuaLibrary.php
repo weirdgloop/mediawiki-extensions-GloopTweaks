@@ -6,7 +6,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Parser\Parser;
 use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LibraryBase;
 
-class Scribunto_LuaGloopTweaksLibrary extends Scribunto_LuaLibraryBase {
+class GloopTweaksLuaLibrary extends LibraryBase {
 	public function register() {
 		$lib = [
 			'filepath' => [ $this, 'filepath' ],
