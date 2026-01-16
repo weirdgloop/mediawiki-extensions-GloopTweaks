@@ -5,6 +5,8 @@ namespace MediaWiki\Extension\GloopTweaks;
 use MediaWiki\Api\Hook\APIAfterExecuteHook;
 use MediaWiki\Cache\Hook\MessageCacheFetchOverridesHook;
 use MediaWiki\Config\Config;
+use MediaWiki\Content\Content;
+use MediaWiki\Content\Hook\ContentAlterParserOutputHook;
 use MediaWiki\Deferred\CdnCacheUpdate;
 use MediaWiki\Deferred\DeferredUpdates;
 use MediaWiki\Exception\ErrorPageError;
@@ -61,6 +63,7 @@ use MediaWiki\Title\Title;
 use MediaWiki\WikiMap\WikiMap;
 use MediaWiki\Page\WikiPage;
 use MessageSpecifier;
+use Wikimedia\Minify\CSSMin;
 
 /**
  * Hooks for various customisations used on Weird Gloop wikis.
@@ -88,7 +91,8 @@ class GloopTweaksHooks implements
 	ResourceLoaderRegisterModulesHook,
 	ScribuntoExternalLibrariesHook,
 	RawPageViewBeforeOutputHook,
-	APIAfterExecuteHook
+	APIAfterExecuteHook,
+	ContentAlterParserOutputHook
 {
 	private Config $config;
 
@@ -705,6 +709,52 @@ class GloopTweaksHooks implements
 
 			$request = $module->getRequest();
 			GloopTweaksUtils::addCacheTag( $request, $cacheTags );
+		}
+	}
+
+	/**
+	 * @param Content $content
+	 * @param Title $title
+	 * @param ParserOutput $parserOutput
+	 * @return void
+	 */
+	public function onContentAlterParserOutput( $content, $title, $parserOutput ): void {
+		// For each file referenced using filepath:// in a CSS page, add a file backlink.
+		if ( $content->getModel() === CONTENT_MODEL_CSS ) {
+			$text = $parserOutput->getContentHolderText();
+
+			/* @see CSSMin::getUrlRegex */
+			$urlRegex = 'url\(\s*+(?:' .
+				// Unquoted url
+				'(?P<file>[^\'"][^?)]+?)' .
+				// Single quoted url
+				'|\'(?P<file>[^?\']++)\'' .
+				// Double quoted url
+				'|"(?P<file>[^?"]++)"' .
+				')\s*\)';
+
+			$pattern = '/(?:^|[;{])\K[^;{}]*' . $urlRegex . '[^;}]*+(?=[;}]|$)/J';
+			$matches = [];
+			preg_match_all( $pattern, $text, $matches, PREG_SET_ORDER );
+
+			/* @see CSSMin::remapOne */
+			foreach ( $matches as $match ) {
+				$parsedUrl = parse_url( $match['file'] );
+				if (
+					is_array( $parsedUrl ) &&
+					isset( $parsedUrl['scheme'] ) &&
+					$parsedUrl['scheme'] == 'filepath' &&
+					isset( $parsedUrl['host'] )
+				) {
+					$name = rawurldecode( parse_url( $match['file'], PHP_URL_HOST ) );
+					$file = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo()->newFile( $name );
+					if ( !$file ) {
+						continue;
+					}
+
+					$parserOutput->addImage( $file->getTitle()->getDBkey(), $file->getTimestamp(), $file->getSha1() );
+				}
+			}
 		}
 	}
 }
