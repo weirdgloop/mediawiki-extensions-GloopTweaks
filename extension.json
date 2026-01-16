@@ -1,6 +1,6 @@
 {
 	"name": "GloopTweaks",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"author": [
 		"[https://github.com/jayktaylor Jayden Bailey]",
 		"TehKittyCat",
@@ -53,32 +53,40 @@
 			}
 		}
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks",
+			"services": [
+				"MainConfig"
+			]
+		}
+	},
 	"Hooks": {
-		"AfterImportPage": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onAfterImportPage",
-		"ArticleViewHeader": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onArticleViewHeader",
-		"BeforePageDisplay": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onBeforePageDisplay",
-		"ContactForm": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onContactPage",
-		"GetLocalURL::Internal": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onGetLocalURLInternal",
-		"GlobalBlockingBlockedIpMsg": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onGlobalBlockingBlockedIpMsg",
-		"GlobalBlockingBlockedIpXffMsg": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onGlobalBlockingBlockedIpXffMsg",
-		"LocalFilePurgeThumbnails": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onLocalFilePurgeThumbnails",
-		"MessageCacheFetchOverrides": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onMessageCacheFetchOverrides",
-		"OpenSearchUrls": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onOpenSearchUrls",
-		"PageDeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageDeleteComplete",
-		"PageMoveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageMoveComplete",
-		"PageSaveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageSaveComplete",
-		"PageUndeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageUndeleteComplete",
-		"ResourceLoaderRegisterModules": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onResourceLoaderRegisterModules",
-		"ScribuntoExternalLibraries": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onScribuntoExternalLibraries",
-		"SkinAddFooterLinks": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onSkinAddFooterLinks",
-		"SkinCopyrightFooter": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onSkinCopyrightFooter",
-		"TestCanonicalRedirect": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onTestCanonicalRedirect",
-		"TitleSquidURLs": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onTitleSquidURLs",
-		"UploadForm:initial": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onUploadFormInitial",
-		"UserGetRightsRemove": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onUserGetRightsRemove",
-		"getUserPermissionsErrors": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::ongetUserPermissionsErrors",
-		"RawPageViewBeforeOutput": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onRawPageViewBeforeOutput",
-		"APIAfterExecute": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onAPIAfterExecute"
+		"AfterImportPage": "main",
+		"ArticleViewHeader": "main",
+		"BeforePageDisplay": "main",
+		"ContactForm": "main",
+		"GetLocalURL::Internal": "main",
+		"GlobalBlockingBlockedIpMsg": "main",
+		"GlobalBlockingBlockedIpXffMsg": "main",
+		"LocalFilePurgeThumbnails": "main",
+		"MessageCacheFetchOverrides": "main",
+		"OpenSearchUrls": "main",
+		"PageDeleteComplete": "main",
+		"PageMoveComplete": "main",
+		"PageSaveComplete": "main",
+		"PageUndeleteComplete": "main",
+		"ResourceLoaderRegisterModules": "main",
+		"ScribuntoExternalLibraries": "main",
+		"SkinAddFooterLinks": "main",
+		"SkinCopyrightFooterMessage": "main",
+		"TestCanonicalRedirect": "main",
+		"TitleSquidURLs": "main",
+		"UploadForm:initial": "main",
+		"UserGetRightsRemove": "main",
+		"getUserPermissionsErrors": "main",
+		"RawPageViewBeforeOutput": "main",
+		"APIAfterExecute": "main"
 	},
 	"JobClasses": {
 		"refreshLinksBatch": "MediaWiki\\Extension\\GloopTweaks\\RefreshLinksBatchJob"

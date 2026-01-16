@@ -2,22 +2,55 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use MediaWiki\Api\Hook\APIAfterExecuteHook;
+use MediaWiki\Cache\Hook\MessageCacheFetchOverridesHook;
+use MediaWiki\Config\Config;
 use MediaWiki\Deferred\CdnCacheUpdate;
 use MediaWiki\Deferred\DeferredUpdates;
 use MediaWiki\Exception\ErrorPageError;
+use MediaWiki\Exception\MWException;
+use MediaWiki\Extension\ContactPage\Hooks\ContactFormHook;
+use MediaWiki\Extension\Scribunto\Hooks\ScribuntoExternalLibrariesHook;
+use MediaWiki\FileRepo\File\File;
+use MediaWiki\Hook\AfterImportPageHook;
+use MediaWiki\Hook\BeforePageDisplayHook;
+use MediaWiki\Hook\GetLocalURL__InternalHook;
+use MediaWiki\Hook\LocalFilePurgeThumbnailsHook;
+use MediaWiki\Hook\OpenSearchUrlsHook;
+use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\RawPageViewBeforeOutputHook;
+use MediaWiki\Hook\SkinAddFooterLinksHook;
+use MediaWiki\Hook\SkinCopyrightFooterMessageHook;
+use MediaWiki\Hook\TestCanonicalRedirectHook;
+use MediaWiki\Hook\TitleSquidURLsHook;
+use MediaWiki\Hook\UploadForm_initialHook;
 use MediaWiki\Html\Html;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use MediaWiki\Logging\ManualLogEntry;
+use MediaWiki\Mail\MailAddress;
+use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\Page\Hook\ArticleViewHeaderHook;
+use MediaWiki\Page\Hook\PageDeleteCompleteHook;
+use MediaWiki\Page\Hook\PageUndeleteCompleteHook;
 use MediaWiki\Page\ProperPageIdentity;
+use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Permissions\Authority;
+use MediaWiki\Permissions\Hook\GetUserPermissionsErrorsHook;
+use MediaWiki\Permissions\Hook\UserGetRightsRemoveHook;
+use MediaWiki\Request\WebRequest;
+use MediaWiki\ResourceLoader\Hook\ResourceLoaderRegisterModulesHook;
 use MediaWiki\ResourceLoader\ResourceLoader;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Specials\SpecialUpload;
 use MediaWiki\Storage\EditResult;
+use MediaWiki\Storage\Hook\PageSaveCompleteHook;
+use MediaWiki\Title\ForeignTitle;
+use MediaWiki\User\User;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\Page\Article;
 use MediaWiki\Output\OutputPage;
@@ -27,64 +60,136 @@ use MediaWiki\Skin\Skin;
 use MediaWiki\Title\Title;
 use MediaWiki\WikiMap\WikiMap;
 use MediaWiki\Page\WikiPage;
+use MessageSpecifier;
 
 /**
- * Hooks for GloopTweaks extension
- *
- * @file
- * @ingroup Extensions
+ * Hooks for various customisations used on Weird Gloop wikis.
  */
-class GloopTweaksHooks {
+class GloopTweaksHooks implements
+	MessageCacheFetchOverridesHook,
+	AfterImportPageHook,
+	PageDeleteCompleteHook,
+	PageMoveCompleteHook,
+	PageSaveCompleteHook,
+	PageUndeleteCompleteHook,
+	SkinCopyrightFooterMessageHook,
+	SkinAddFooterLinksHook,
+	UploadForm_initialHook,
+	UserGetRightsRemoveHook,
+	GetUserPermissionsErrorsHook,
+	ArticleViewHeaderHook,
+	BeforePageDisplayHook,
+	OpenSearchUrlsHook,
+	ContactFormHook,
+	TestCanonicalRedirectHook,
+	GetLocalURL__InternalHook,
+	LocalFilePurgeThumbnailsHook,
+	TitleSquidURLsHook,
+	ResourceLoaderRegisterModulesHook,
+	ScribuntoExternalLibrariesHook,
+	RawPageViewBeforeOutputHook,
+	APIAfterExecuteHook
+{
+	private Config $config;
+
+	public function __construct( Config $config ) {
+		$this->config = $config;
+	}
+
 	/**
-	 * When core requests certain messages, change the key to a Weird Gloop version.
-	 *
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/MessageCacheFetchOverrides
 	 * @param string[] &$keys
+	 * @return void
 	 */
-	public static function onMessageCacheFetchOverrides( array &$keys ): void {
-		global $wgGloopTweaksEnableMessageOverrides;
-		if ( !$wgGloopTweaksEnableMessageOverrides ) return;
+	public function onMessageCacheFetchOverrides( array &$keys ): void {
+		// When certain messages are requested, change the key to a Weird Gloop version.
+		if ( $this->config->get( 'GloopTweaksEnableMessageOverrides' ) ) {
+			static $keysToOverride = [
+				'privacypage',
+				'changecontentmodel-text',
+				'emailmessage',
+				'mobile-frontend-copyright',
+				'contactpage-pagetext',
+				'newusermessage-editor',
+				'revisionslider-help-dialog-slide1'
+			];
 
-		static $keysToOverride = [
-			'privacypage',
-			'changecontentmodel-text',
-			'emailmessage',
-			'mobile-frontend-copyright',
-			'contactpage-pagetext',
-			'newusermessage-editor',
-			'revisionslider-help-dialog-slide1'
-		];
-
-		foreach( $keysToOverride as $key ) {
-			$keys[$key] = "weirdgloop-$key";
+			foreach ( $keysToOverride as $key ) {
+				$keys[$key] = "weirdgloop-$key";
+			}
 		}
 	}
 
-	public static function onAfterImportPage( $title, $origTitle, $revCount, $sRevCount, $pageInfo ) {
-		// Purge by tag doesn't do anything for page creation since the page might already be cached, so additionally purge by prefix.
+	/**
+	 * @param Title $title
+	 * @param ForeignTitle $foreignTitle
+	 * @param int $revCount
+	 * @param int $sRevCount
+	 * @param array $pageInfo
+	 * @return void
+	 */
+	public function onAfterImportPage( $title, $foreignTitle, $revCount, $sRevCount, $pageInfo ): void {
+		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		$parsed = parse_url( $title->getFullURL() );
 		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 	}
 
-	// Work around page id for a title no longer existing by the time mediawiki purges after page deletion.
-	public static function onPageDeleteComplete( ProperPageIdentity $page, Authority $deleter, string $reason, int $pageID, RevisionRecord $deletedRev, ManualLogEntry $logEntry, int $archivedRevisionCount ) {
-		global $wgDBname;
-		CdnCacheUpdate::purgeGloop( [ "$wgDBname:page:$pageID" ], 'tag' );
+	/**
+	 * @param ProperPageIdentity $page
+	 * @param Authority $deleter
+	 * @param string $reason
+	 * @param int $pageID
+	 * @param RevisionRecord $deletedRev
+	 * @param ManualLogEntry $logEntry
+	 * @param int $archivedRevisionCount
+	 * @return void
+	 */
+	public function onPageDeleteComplete(
+		ProperPageIdentity $page,
+		Authority $deleter,
+		string $reason,
+		int $pageID,
+		RevisionRecord $deletedRev,
+		ManualLogEntry $logEntry,
+		int $archivedRevisionCount
+	): void {
+		// Work around page ID for a title no longer existing by the time MediaWiki purges after page deletion.
+		$dbName = $this->config->get( MainConfigNames::DBname );
+		CdnCacheUpdate::purgeGloop( [ "$dbName:page:$pageID" ], 'tag' );
 	}
 
-	// Purge by tag doesn't do anything for page created by move since the page might already be cached, so additionally purge by prefix.
-	public static function onPageMoveComplete( LinkTarget $old, LinkTarget $new, UserIdentity $userIdentity, int $pageid, int $redirid, string $reason, RevisionRecord $revision ) {
+	/**
+	 * @param LinkTarget $old
+	 * @param LinkTarget $new
+	 * @param UserIdentity $user
+	 * @param int $pageid
+	 * @param int $redirid
+	 * @param string $reason
+	 * @param RevisionRecord $revision
+	 * @return void
+	 */
+	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ): void {
+		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		$parsed = parse_url( Title::castFromLinkTarget( $new )->getFullURL() );
 		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 	}
 
-	// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the contact-filter-regexes global cache key.
-	public static function onPageSaveComplete( WikiPage $wikiPage, UserIdentity $user, string $summary, int $flags, RevisionRecord $revisionRecord, EditResult $editResult ) {
+	/**
+	 * @param WikiPage $wikiPage
+	 * @param UserIdentity $user
+	 * @param string $summary
+	 * @param int $flags
+	 * @param RevisionRecord $revisionRecord
+	 * @param EditResult $editResult
+	 * @return void
+	 */
+	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ): void {
+		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		if ( $editResult->isNew() ) {
-			// Purge by tag doesn't do anything for page creation since the page might already be cached, so additionally purge by prefix.
 			$parsed = parse_url( $wikiPage->getTitle()->getFullURL() );
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 		}
+
+		// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the contact-filter-regexes global cache key.
 		if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
 			$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 
@@ -97,8 +202,28 @@ class GloopTweaksHooks {
 		}
 	}
 
-	// Purge by tag doesn't do anything for page creation since the page might already be cached, so additionally purge by prefix.
-	public static function onPageUndeleteComplete( ProperPageIdentity $page, Authority $restorer, string $reason, RevisionRecord $restoredRev, ManualLogEntry $logEntry, int $restoredRevisionCount, bool $created, array $restoredPageIds ) {
+	/**
+	 * @param ProperPageIdentity $page
+	 * @param Authority $restorer
+	 * @param string $reason
+	 * @param RevisionRecord $restoredRev
+	 * @param ManualLogEntry $logEntry
+	 * @param int $restoredRevisionCount
+	 * @param bool $created
+	 * @param array $restoredPageIds
+	 * @return void
+	 */
+	public function onPageUndeleteComplete(
+		ProperPageIdentity $page,
+		Authority $restorer,
+		string $reason,
+		RevisionRecord $restoredRev,
+		ManualLogEntry $logEntry,
+		int $restoredRevisionCount,
+		bool $created,
+		array $restoredPageIds
+	): void {
+		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		if ( $created ) {
 			$parsed = parse_url( Title::newFromPageIdentity( $page )->getFullURL() );
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
@@ -106,17 +231,12 @@ class GloopTweaksHooks {
 	}
 
 	/**
-	 * Override with Weird Gloop's site-specific copyright message.
-	 *
 	 * @param Title $title
 	 * @param string $type
 	 * @param string &$msg
-	 * @param string &$link
 	 */
-	public static function onSkinCopyrightFooter( $title, $type, &$msg, &$link ) {
-		global $wgGloopTweaksEnableMessageOverrides;
-
-		if ($wgGloopTweaksEnableMessageOverrides) {
+	public function onSkinCopyrightFooterMessage( $title, $type, &$msg ): void {
+		if ( $this->config->get( 'GloopTweaksEnableMessageOverrides' ) ) {
 			if ( $type !== 'history' ) {
 				$msg = 'weirdgloop-copyright';
 			}
@@ -124,17 +244,13 @@ class GloopTweaksHooks {
 	}
 
 	/**
-	 * Add some links at the bottom of pages
-	 *
 	 * @param Skin $skin
 	 * @param string $key
-	 * @param array &$footerLinks
+	 * @param array &$footerItems
 	 */
-	public static function onSkinAddFooterLinks( Skin $skin, string $key, array &$footerLinks ) {
-		global $wgGloopTweaksAddFooterLinks;
-
-		if ( $wgGloopTweaksAddFooterLinks && $key === 'places' ) {
-			$footerLinks['tou'] = Html::element(
+	public function onSkinAddFooterLinks( Skin $skin, string $key, array &$footerItems ): void {
+		if ( $this->config->get( 'GloopTweaksAddFooterLinks' ) && $key === 'places' ) {
+			$footerItems['tou'] = Html::element(
 				'a',
 				[
 					'href' => Skin::makeInternalOrExternalUrl(
@@ -144,7 +260,7 @@ class GloopTweaksHooks {
 				$skin->msg( 'weirdgloop-tou' )->text()
 			);
 
-			$footerLinks['contact'] = Html::element(
+			$footerItems['contact'] = Html::element(
 				'a',
 				[
 					'href' => Skin::makeInternalOrExternalUrl(
@@ -161,10 +277,8 @@ class GloopTweaksHooks {
 	 *
 	 * @param string &$msg The message to over-ride
 	 */
-	public static function onGlobalBlockingBlockedIpMsg( &$msg ) {
-		global $wgGloopTweaksEnableMessageOverrides;
-
-		if ($wgGloopTweaksEnableMessageOverrides) {
+	public function onGlobalBlockingBlockedIpMsg( &$msg ) {
+		if ( $this->config->get( 'GloopTweaksEnableMessageOverrides' ) ) {
 			$msg = 'weirdgloop-globalblocking-ipblocked';
 		}
 	}
@@ -174,28 +288,26 @@ class GloopTweaksHooks {
 	 *
 	 * @param string &$msg The message to over-ride
 	 */
-	public static function onGlobalBlockingBlockedIpXffMsg( &$msg ) {
-		global $wgGloopTweaksEnableMessageOverrides;
-
-		if ($wgGloopTweaksEnableMessageOverrides) {
+	public function onGlobalBlockingBlockedIpXffMsg( &$msg ) {
+		if ( $this->config->get( 'GloopTweaksEnableMessageOverrides' ) ) {
 			$msg = 'weirdgloop-globalblocking-ipblocked-xff';
 		}
 	}
 
 	/**
-	 * Require the creation of MediaWiki:Licenses to enable uploading.
-	 *
-	 * Do not require it when licenses is in $wgForceUIMsgAsContentMsg,
-	 * to prevent checking each subpage of MediaWiki:Licenses.
-	 *
-	 * @param BaseTemplate $tpl
+	 * @param SpecialUpload $upload
+	 * @return void
 	 * @throws ErrorPageError
 	 */
-	public static function onUploadFormInitial( $tpl ) {
-		global $wgGloopTweaksRequireLicensesToUpload, $wgForceUIMsgAsContentMsg;
-
-		if ($wgGloopTweaksRequireLicensesToUpload) {
-			if ( !in_array( 'licenses', $wgForceUIMsgAsContentMsg )
+	public function onUploadForm_initial( $upload ): void {
+		/**
+		 * Require the creation of MediaWiki:Licenses to enable uploading.
+		 *
+		 * Do not require it when licenses is in $wgForceUIMsgAsContentMsg,
+		 * to prevent checking each subpage of MediaWiki:Licenses.
+		 */
+		if ( $this->config->get( 'GloopTweaksRequireLicensesToUpload' ) ) {
+			if ( !in_array( 'licenses', $this->config->get( MainConfigNames::ForceUIMsgAsContentMsg ) )
 				&& wfMessage( 'licenses' )->inContentLanguage()->isDisabled()
 			) {
 				throw new ErrorPageError( 'uploaddisabled', 'weirdgloop-upload-nolicenses' );
@@ -204,16 +316,15 @@ class GloopTweaksHooks {
 	}
 
 	/**
-	 * Restrict sensitive user rights to only 2FAed sessions.
-	 *
-	 * @param User $user Current user
-	 * @param array &$rights Current user rights.
+	 * @param User $user
+	 * @param string[] &$rights
+	 * @return void
 	 */
-	public static function onUserGetRightsRemove( $user, &$rights ) {
-		global $wgGloopTweaksSensitiveRights;
+	public function onUserGetRightsRemove( $user, &$rights ): void {
+		$sensitiveRights = $this->config->get( 'GloopTweaksSensitiveRights' );
 
 		// Avoid 2FA lookup if the user doesn't have any sensitive user rights.
-		if ( array_intersect( $wgGloopTweaksSensitiveRights, $rights ) === [] ) {
+		if ( array_intersect( $sensitiveRights, $rights ) === [] ) {
 			return;
 		}
 
@@ -221,7 +332,7 @@ class GloopTweaksHooks {
 		$oathUser = $userRepo->findByUser( $user );
 		if ( !$oathUser->isTwoFactorAuthEnabled() ) {
 			// No 2FA, remove sensitive user rights.
-			$rights = array_diff( $rights, $wgGloopTweaksSensitiveRights );
+			$rights = array_diff( $rights, $sensitiveRights );
 		}
 	}
 
@@ -231,15 +342,17 @@ class GloopTweaksHooks {
 	 * with "weirdgloop" are probably there for a legal reason or to ensure consistency
 	 * across the site.
 	 *
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $action
+	 * @param array|string|MessageSpecifier &$result
 	 * @return bool
 	 */
-	public static function ongetUserPermissionsErrors( $title, $user, $action, &$result ) {
-		global $wgGloopTweaksProtectSiteInterface;
-
-		if ( $wgGloopTweaksProtectSiteInterface
+	public function onGetUserPermissionsErrors( $title, $user, $action, &$result ): bool {
+		if ( $this->config->get( 'GloopTweaksProtectSiteInterface' )
 			&& $action !== 'read'
 			&& $title->inNamespace( NS_MEDIAWIKI )
-			&& strpos( lcfirst( $title->getDBKey() ), 'weirdgloop-' ) === 0
+			&& str_starts_with( lcfirst( $title->getDBKey() ), 'weirdgloop-' )
 			&& !$user->isAllowed( 'editinterfacesite' )
 		) {
 				$result = 'weirdgloop-siteinterface';
@@ -255,8 +368,8 @@ class GloopTweaksHooks {
 	 * @param bool &$pcache
 	 * @return void
 	 */
-	public static function onArticleViewHeader( $article, &$outputDone, &$pcache ) {
-		global $wgDBname;
+	public function onArticleViewHeader( $article, &$outputDone, &$pcache ): void {
+		$dbName = $this->config->get( MainConfigNames::DBname );
 
 		/**
 		 * Add a Cache-Tag HTTP header for Cloudflare to use, for normal page views, ?action=history (and others),
@@ -265,14 +378,14 @@ class GloopTweaksHooks {
 		$cacheTags = [];
 		$id = $article->getTitle()->getArticleID();
 		if ( $id ) {
-			$cacheTags[] = "$wgDBname:page:{$id}";
+			$cacheTags[] = "$dbName:page:$id";
 		}
 		// Purge the source page as well for redirected pages.
 		$redirectedFrom = $article->getRedirectedFrom();
 		if ( $redirectedFrom ) {
 			$id = $redirectedFrom->getArticleID();
 			if ( $id ) {
-				$cacheTags[] = "$wgDBname:page:{$id}";
+				$cacheTags[] = "$dbName:page:$id";
 			}
 		}
 
@@ -282,28 +395,33 @@ class GloopTweaksHooks {
 
 	/**
 	 * Implement theming and add structured data for the Google Sitelinks search box.
+	 *
+	 * @param OutputPage $out
+	 * @param Skin $skin
+	 * @return void
 	 */
-	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
-		global $wgGloopTweaksAnalyticsID, $wgGloopTweaksCSP, $wgGloopTweaksCSPAnons, $wgSitename;
-		global $wgGloopTweaksEnableTheming, $wgGloopTweaksDefaultTheme, $wgGloopTweaksEnableLoadingFixedWidth,
-			   $wgGloopTweaksEnableStructuredData, $wgCanonicalServer, $wgDBname;
+	public function onBeforePageDisplay( $out, $skin ): void {
+		$csp = $this->config->get( 'GloopTweaksCSP' );
+		$cspAnon = $this->config->get( 'GloopTweaksCSPAnons' );
 
-		// For letting user JS import from additional sources, like the Wikimedia projects, they have a longer CSP than anons.
-		if ( $wgGloopTweaksCSP !== '' ) {
+		// Add a CSP header. The CSP for normal users can be different to anons.
+		if ( $csp !== '' ) {
 			$user = RequestContext::getMain()->getUser();
 			$response = $out->getRequest()->response();
 
-			if ( $wgGloopTweaksCSPAnons === '' || ( $user && !$user->isAnon() ) ) {
-				$response->header( 'Content-Security-Policy: ' . $wgGloopTweaksCSP );
+			if ( $cspAnon === '' || ( $user && !$user->isAnon() ) ) {
+				$response->header( 'Content-Security-Policy: ' . $csp );
 			} else {
-				$response->header( 'Content-Security-Policy: ' . $wgGloopTweaksCSPAnons );
+				$response->header( 'Content-Security-Policy: ' . $cspAnon );
 			}
 		}
 
+		$gtmId = $this->config->get( 'GloopTweaksAnalyticsID' );
+
 		// Inject Google Tag Manager.
-		if ( $wgGloopTweaksAnalyticsID ) {
-			$out->addInlineScript( "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','$wgGloopTweaksAnalyticsID')" );
-			$out->prependHTML( '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $wgGloopTweaksAnalyticsID . '" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>' );
+		if ( $gtmId ) {
+			$out->addInlineScript( "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','$gtmId')" );
+			$out->prependHTML( '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $gtmId . '" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>' );
 		}
 
 		/*
@@ -318,11 +436,12 @@ class GloopTweaksHooks {
 		// Avoid duplicate processing if this will be performed instead by our Cloudflare worker.
 		if ( !$workerProcessed ) {
 			/* Theming */
-			if ( $wgGloopTweaksEnableTheming ) {
+			if ( $this->config->get( 'GloopTweaksEnableTheming' ) ) {
+				$defaultTheme = $this->config->get( 'GloopTweaksDefaultTheme' );
 				$legacyDarkmode = isset( $_COOKIE['darkmode'] ) && $_COOKIE['darkmode'] === 'true';
-				$theme = $_COOKIE['theme'] ?? ( $legacyDarkmode ? 'dark' : $wgGloopTweaksDefaultTheme );
+				$theme = $_COOKIE['theme'] ?? ( $legacyDarkmode ? 'dark' : $defaultTheme );
 
-				if ( $theme !== $wgGloopTweaksDefaultTheme ) {
+				if ( $theme !== $defaultTheme ) {
 					// If the selected theme is not the default theme, load the custom theme module.
 					$out->addModuleStyles( [ "wgl.theme.$theme" ] );
 				}
@@ -330,7 +449,7 @@ class GloopTweaksHooks {
 				if ( $theme === 'light' ) {
 					// Legacy light mode selector.
 					$out->addBodyClasses( [ 'wgl-lightmode' ] );
-				} else if ( $theme === 'dark') {
+				} elseif ( $theme === 'dark' ) {
 					// Legacy dark mode selector.
 					$out->addBodyClasses( [ 'wgl-darkmode' ] );
 				}
@@ -339,31 +458,35 @@ class GloopTweaksHooks {
 			}
 
 			/* Fixed width mode */
-			if ( $wgGloopTweaksEnableLoadingFixedWidth && isset( $_COOKIE['readermode'] ) && $_COOKIE['readermode'] === 'true' ) {
+			if ( $this->config->get( 'GloopTweaksEnableLoadingFixedWidth' ) &&
+				isset( $_COOKIE['readermode'] ) && $_COOKIE['readermode'] === 'true' ) {
 				$out->addBodyClasses( [ 'wgl-fixedWidth' ] );
 				$out->addModuleStyles( [ 'wg.fixedwidth' ] );
 			}
 		}
 
 		$title = $out->getTitle();
+		$siteName = $this->config->get( MainConfigNames::Sitename );
+
 		if ( $title->isMainPage() ) {
 			/* Open Graph protocol */
-			$out->addMeta( 'og:title', $wgSitename );
+			$out->addMeta( 'og:title', $siteName );
 			$out->addMeta( 'og:type', 'website' );
 
 			/* Structured data for Google etc */
-			if ( $wgGloopTweaksEnableStructuredData ) {
+			if ( $this->config->get( 'GloopTweaksEnableStructuredData' ) ) {
 				$structuredData = [
 					'@context'        => 'http://schema.org',
 					'@type'           => 'WebSite',
-					'name'            => $wgSitename,
-					'url'             => $wgCanonicalServer,
+					'name'            => $siteName,
+					'url'             => $this->config->get( MainConfigNames::CanonicalServer ),
 				];
-				$out->addHeadItem( 'StructuredData', '<script type="application/ld+json">' . json_encode( $structuredData ) . '</script>' );
+				$out->addHeadItem( 'StructuredData',
+					'<script type="application/ld+json">' . json_encode( $structuredData ) . '</script>' );
 			}
 		} else {
 			/* Open Graph protocol */
-			$out->addMeta( 'og:site_name', $wgSitename );
+			$out->addMeta( 'og:site_name', $siteName );
 			$out->addMeta( 'og:title', $out->getHTMLTitle() );
 			$out->addMeta( 'og:type', 'article' );
 		}
@@ -371,52 +494,69 @@ class GloopTweaksHooks {
 		$out->addMeta( 'og:url', $title->getFullURL() );
 	}
 
-	// Cache OpenSearch for 600 seconds. (10 minutes)
-	public static function onOpenSearchUrls( &$urls ) {
+	/**
+	 * Cache opensearch URLs for 600 seconds (10 minutes)
+	 * @param array[] &$urls
+	 * @return void
+	 */
+	public function onOpenSearchUrls( &$urls ): void {
 		foreach ( $urls as &$url ) {
 			if ( in_array( $url['type'], [ 'application/x-suggestions+json', 'application/x-suggestions+xml' ] ) ) {
-				$url['template'] = wfAppendQuery( $url['template'], [ 'maxage' => 600, 'smaxage' => 600, 'uselang' => 'content' ] );
+				$url['template'] = wfAppendQuery(
+					$url['template'], [ 'maxage' => 600, 'smaxage' => 600, 'uselang' => 'content' ] );
 			}
 		}
 	}
 
 	/**
 	 * Implement diagnostic information into Special:Contact.
-	 * Hook provided by ContactPage extension.
+	 * @param MailAddress &$contactRecipientAddress
+	 * @param MailAddress|null &$replyTo
+	 * @param string &$subject
+	 * @param string &$text
+	 * @param string $formType
+	 * @param array $formData
+	 * @return bool
+	 * @throws MWException
 	 */
-	public static function onContactPage( &$to, &$replyTo, &$subject, &$text ) {
-		global $wgGloopTweaksEnableContactFilter, $wgGloopTweaksSendDetailsWithContactPage, $wgGloopTweaksUseSFS, $wgDBname, $wgRequest, $wgOut, $wgServer;
+	public function onContactForm(
+		&$contactRecipientAddress,
+		&$replyTo,
+		&$subject,
+		&$text,
+		$formType,
+		$formData
+	): bool {
+		$ctx = RequestContext::getMain();
+		$user = $ctx->getUser();
+		$userIP = $ctx->getRequest()->getIP();
 
-		$user = $wgOut->getUser();
-		$userIP = $wgRequest->getIP();
-
-		// Spam filter for Special:Contact, checks against [[MediaWiki:weirdgloop-contact-filter]] on metawiki. Regex per line and use '#' for comments.
-		if ( $wgGloopTweaksEnableContactFilter && !GloopTweaksUtils::checkContactFilter( $subject . "\n" . $text ) ) {
-			wfDebugLog( 'GloopTweaks', "Blocked contact form from {$userIP} as their message matches regex in our contact filter" );
+		/**
+		 * Spam filter for Special:Contact, checks against [[MediaWiki:weirdgloop-contact-filter]] on metawiki.
+		 * Regex per line and use '#' for comments.
+		 */
+		if ( $this->config->get( 'GloopTweaksEnableContactFilter' ) &&
+			!GloopTweaksUtils::checkContactFilter( $subject . "\n" . $text ) ) {
+			wfDebugLog( 'GloopTweaks',
+				"Blocked contact form from $userIP as their message matches regex in our contact filter" );
 			return false;
 		}
 
 		// StopForumSpam check: only check users who are not registered already
-		if ( $wgGloopTweaksUseSFS && $user->isAnon() && StopForumSpam::isBlacklisted( $userIP ) ) {
-			wfDebugLog( 'GloopTweaks', "Blocked contact form from {$userIP} as they are in StopForumSpam's database" );
+		if ( $this->config->get( 'GloopTweaksUseSFS' ) && $user->isAnon() && StopForumSpam::isBlacklisted( $userIP ) ) {
+			wfDebugLog( 'GloopTweaks',
+				"Blocked contact form from $userIP as they are in StopForumSpam's database" );
 			return false;
 		}
 
-		// Block contact page submissions that have an invalid "Reply to"
-		// Bots appear to rewrite <input> tags with type='email' to type='text'
-		// And then the form lets them submit without any additional verification.
-		// if ( !filter_var( $replyTo, FILTER_VALIDATE_EMAIL ) ) {
-		// 	wfDebugLog( 'GloopTweaks', "Blocked contact form from {$userIP} as the Reply-To address is not an email address" );
-		// 	return false;
-		// }
-
-		if ($wgGloopTweaksSendDetailsWithContactPage) {
-			$text .= "\n\n---\n\n"; // original message
-			$text .= $wgServer . ' (' . $wgDBname . ") [" . gethostname() . "]\n"; // server & database name
-			$text .= $userIP . ' - ' . ( $_SERVER['HTTP_USER_AGENT'] ?? null ) . "\n"; // IP & user agent
-			$text .= 'Referrer: ' . ( $_SERVER['HTTP_REFERER'] ?? null ) . "\n"; // referrer if any
-			$text .= 'Skin: ' . $wgOut->getSkin()->getSkinName() . "\n"; // skin
-			$text .= 'User: ' . $user->getName() . ' (' . $user->getId() . ')'; // user
+		if ( $this->config->get( 'GloopTweaksSendDetailsWithContactPage' ) ) {
+			$text .= "\n\n---\n\n";
+			$text .= $this->config->get( MainConfigNames::Server ) . ' (' .
+				$this->config->get( MainConfigNames::DBname ) . ") [" . gethostname() . "]\n";
+			$text .= $userIP . ' - ' . ( $_SERVER['HTTP_USER_AGENT'] ?? null ) . "\n";
+			$text .= 'Referrer: ' . ( $_SERVER['HTTP_REFERER'] ?? null ) . "\n";
+			$text .= 'Skin: ' . $ctx->getSkinName() . "\n";
+			$text .= 'User: ' . $user->getName() . ' (' . $user->getId() . ')';
 		}
 
 		return true;
@@ -424,62 +564,82 @@ class GloopTweaksHooks {
 
 	/**
 	 * Prevent infinite looping of main page requests with cache parameters.
+	 * @param WebRequest $request
+	 * @param Title $title
+	 * @param OutputPage $output
+	 * @return bool
+	 * @throws MWException
 	 */
-	public static function onTestCanonicalRedirect( $request, $title, $output ) {
+	public function onTestCanonicalRedirect( $request, $title, $output ): bool {
 		global $wgScriptPath;
 		if ( $title->isMainPage() && str_starts_with( $request->getRequestURL(), $wgScriptPath . '/?' ) ) {
 			return false;
 		}
+
+		return true;
 	}
 
 	/**
-	 * Use Short URL always, even for queries.
-	 * Additionally apply it to the main page
-	 * because $wgMainPageIsDomainRoot doesn't apply to the internal URL, which is used for purging.
+	 * @param Title $title
+	 * @param string &$url
+	 * @param string $query
+	 * @return void
 	 */
-	public static function onGetLocalURLInternal( $title, &$url, $query ) {
-		global $wgArticlePath, $wgScript, $wgMainPageIsDomainRoot, $wgScriptPath;
+	public function onGetLocalURL__Internal( $title, &$url, $query ): void {
+		$script = $this->config->get( MainConfigNames::Script );
+
 		$dbkey = wfUrlencode( $title->getPrefixedDBkey() );
-		if ( $wgMainPageIsDomainRoot && $title->isMainPage() ) {
-			$url = wfAppendQuery( $wgScriptPath . '/', $query );
-		} elseif ( $url == "{$wgScript}?title={$dbkey}&{$query}" ) {
-			$url = wfAppendQuery(str_replace( '$1', $dbkey, $wgArticlePath ), $query );
+		if ( $this->config->get( MainConfigNames::MainPageIsDomainRoot ) && $title->isMainPage() ) {
+			// Use short URL for main page.
+			$url = wfAppendQuery( $this->config->get( MainConfigNames::ScriptPath ) . '/', $query );
+		} elseif ( $url == "$script?title=$dbkey&$query" ) {
+			// Use short URL for queries.
+			$url = wfAppendQuery( str_replace(
+				'$1', $dbkey, $this->config->get( MainConfigNames::ArticlePath ) ), $query );
 		}
 	}
 
 	/**
 	 * Add purging for hashless thumbnails.
+	 * @param File $file
+	 * @param string|false $archiveName
+	 * @param array $urls
+	 * @return void
 	 */
-	public static function onLocalFilePurgeThumbnails( $file, $archiveName, $hashedUrls ) {
+	public function onLocalFilePurgeThumbnails( $file, $archiveName, $urls ): void {
 		$hashlessUrls = [];
-		foreach ( $hashedUrls as $url ) {
+		foreach ( $urls as $url ) {
 			$hashlessUrls[] = strtok( $url, '?' );
 		}
 
-		// Purge the CDN
 		DeferredUpdates::addUpdate( new CdnCacheUpdate( $hashlessUrls ), DeferredUpdates::PRESEND );
 	}
 
 	/**
-	* Add purging for global robots.txt, well-known URLs, and hashless images.
-	*/
-	public static function onTitleSquidURLs( Title $title, array &$urls ) {
-		global $wgCanonicalServer, $wgGloopTweaksNetworkCentralDB, $wgDBname;
+	 * Add purging for global robots.txt, well-known URLs, and hashless images.
+	 * @param Title $title
+	 * @param string[] &$urls
+	 * @return void
+	 */
+	public function onTitleSquidURLs( $title, &$urls ): void {
+		$networkCentralDb = $this->config->get( 'GloopTweaksNetworkCentralDB' );
+		$canonicalServer = $this->config->get( MainConfigNames::CanonicalServer );
+
 		$dbkey = $title->getPrefixedDBKey();
 		// MediaWiki:Robots.txt on metawiki is global.
 		if ( $dbkey === 'MediaWiki:Robots.txt' ) {
-			if ( $wgGloopTweaksNetworkCentralDB && $wgDBname === $wgGloopTweaksNetworkCentralDB ) {
+			if ( $networkCentralDb && $this->config->get( MainConfigNames::DBname ) === $networkCentralDb ) {
 				// Purge each wiki's /robots.txt route.
-				foreach( WikiMap::getCanonicalServerInfoForAllWikis() as $serverInfo ) {
+				foreach ( WikiMap::getCanonicalServerInfoForAllWikis() as $serverInfo ) {
 					$urls[] = $serverInfo['url'] . '/robots.txt';
 				}
 			} else {
-				$urls[] = $wgCanonicalServer . '/robots.txt';
+				$urls[] = $canonicalServer . '/robots.txt';
 			}
 		} elseif ( $dbkey === 'File:Apple-touch-icon.png' ) {
-			$urls[] = $wgCanonicalServer . '/apple-touch-icon.png';
+			$urls[] = $canonicalServer . '/apple-touch-icon.png';
 		} elseif ( $dbkey === 'File:Favicon.ico' ) {
-			$urls[] = $wgCanonicalServer . '/favicon.ico';
+			$urls[] = $canonicalServer . '/favicon.ico';
 		} elseif ( $title->getNamespace() == NS_FILE ) {
 			$file = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo()->newFile( $title );
 			if ( $file ) {
@@ -489,19 +649,20 @@ class GloopTweaksHooks {
 	}
 
 	/**
-	* Register resource modules for themes.
-	*/
-	public static function onResourceLoaderRegisterModules( ResourceLoader $resourceLoader ) {
-		global $wgGloopTweaksThemes;
-		foreach ( $wgGloopTweaksThemes as $theme ) {
-			$resourceLoader->register( "wgl.theme.$theme", [
+	 * @param ResourceLoader $rl
+	 * @return void
+	 */
+	public function onResourceLoaderRegisterModules( ResourceLoader $rl ): void {
+		// Register resource modules for themes.
+		foreach ( $this->config->get( 'GloopTweaksThemes' ) as $theme ) {
+			$rl->register( "wgl.theme.$theme", [
 				'class' => ThemeStylesModule::class,
 				'theme' => $theme,
 			] );
 
 			// Legacy dark mode
 			if ( $theme === 'dark' ) {
-				$resourceLoader->register( 'wg.darkmode', [
+				$rl->register( 'wg.darkmode', [
 					'class' => ThemeStylesModule::class,
 					'theme' => $theme,
 				] );
@@ -515,25 +676,26 @@ class GloopTweaksHooks {
 	 * @param string $engine
 	 * @param array &$extraLibraries
 	 */
-	public static function onScribuntoExternalLibraries( $engine, array &$extraLibraries ) {
+	public function onScribuntoExternalLibraries( string $engine, array &$extraLibraries ): void {
 		if ( $engine == 'lua' ) {
 			$extraLibraries['mw.ext.GloopTweaks'] = GloopTweaksLuaLibrary::class;
 		}
 	}
 
 	/**
-	 * @param RawAction $rawAction
+	 * @param RawAction $obj
+	 * @param string &$text
 	 * @return void
 	 */
-	public static function onRawPageViewBeforeOutput( RawAction &$rawAction ) {
-		global $wgDBname;
+	public function onRawPageViewBeforeOutput( $obj, &$text ): void {
+		$dbName = $this->config->get( MainConfigNames::DBname );
 
 		// Add a Cache-Tag HTTP header for Cloudflare to use, for ?action=raw.
-		if ( $rawAction->getContext()->canUseWikiPage() && $rawAction->getWikiPage()->getId() ) {
+		if ( $obj->getContext()->canUseWikiPage() && $obj->getWikiPage()->getId() ) {
 			$cacheTags = [
-				"$wgDBname:page:{$rawAction->getWikiPage()->getId()}"
+				"$dbName:page:{$obj->getWikiPage()->getId()}"
 			];
-			$request = $rawAction->getRequest();
+			$request = $obj->getRequest();
 			GloopTweaksUtils::addCacheTag( $request, $cacheTags );
 		}
 	}
@@ -542,8 +704,8 @@ class GloopTweaksHooks {
 	 * @param ApiBase $module
 	 * @return void
 	 */
-	public static function onAPIAfterExecute( ApiBase $module ) {
-		global $wgDBname;
+	public function onAPIAfterExecute( $module ): void {
+		$dbName = $this->config->get( MainConfigNames::DBname );
 
 		if ( $module instanceof ApiQuery ) {
 			$pages = (array)$module->getResult()->getResultData( [ 'query', 'pages' ], [ 'Strip' => 'base' ] );
@@ -559,7 +721,7 @@ class GloopTweaksHooks {
 
 			foreach ( $pages as $p2 ) {
 				if ( isset( $p2['pageid'] ) ) {
-					$cacheTags[] = "$wgDBname:page:{$p2['pageid']}";
+					$cacheTags[] = "$dbName:page:{$p2['pageid']}";
 				}
 			}
 
