@@ -85,7 +85,8 @@
 		"getUserPermissionsErrors": "main",
 		"RawPageViewBeforeOutput": "main",
 		"APIAfterExecute": "main",
-		"ContentAlterParserOutput": "main"
+		"ContentAlterParserOutput": "main",
+		"ResourceLoaderBeforeResponse": "main"
 	},
 	"JobClasses": {
 		"refreshLinksBatch": "MediaWiki\\Extension\\GloopTweaks\\RefreshLinksBatchJob"

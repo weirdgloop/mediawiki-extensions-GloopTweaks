@@ -45,8 +45,11 @@ use MediaWiki\Permissions\Authority;
 use MediaWiki\Permissions\Hook\GetUserPermissionsErrorsHook;
 use MediaWiki\Permissions\Hook\UserGetRightsRemoveHook;
 use MediaWiki\Request\WebRequest;
+use MediaWiki\ResourceLoader\Context;
+use MediaWiki\ResourceLoader\Hook\ResourceLoaderBeforeResponseHook;
 use MediaWiki\ResourceLoader\Hook\ResourceLoaderRegisterModulesHook;
 use MediaWiki\ResourceLoader\ResourceLoader;
+use MediaWiki\ResourceLoader\WikiModule;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Specials\SpecialUpload;
 use MediaWiki\Storage\EditResult;
@@ -92,7 +95,8 @@ class GloopTweaksHooks implements
 	ScribuntoExternalLibrariesHook,
 	RawPageViewBeforeOutputHook,
 	APIAfterExecuteHook,
-	ContentAlterParserOutputHook
+	ContentAlterParserOutputHook,
+	ResourceLoaderBeforeResponseHook
 {
 	private Config $config;
 
@@ -755,6 +759,39 @@ class GloopTweaksHooks implements
 					$parserOutput->addImage( $file->getTitle()->getDBkey(), $file->getTimestamp(), $file->getSha1() );
 				}
 			}
+		}
+	}
+
+	/**
+	 * @param Context $context
+	 * @param array &$extraHeaders
+	 * @return void
+	 */
+	public function onResourceLoaderBeforeResponse( Context $context, array &$extraHeaders ): void {
+		$rl = $context->getResourceLoader();
+		$pageStore = MediaWikiServices::getInstance()->getPageStore();
+
+		// Add a Cache-Tag HTTP header for Cloudflare to use.
+		$cacheTags = [];
+
+		foreach ( $context->getModules() as $moduleName ) {
+			/** @var WikiModule $module */
+			$module = $rl->getModule( $moduleName );
+			if ( !$module instanceof WikiModule ) {
+				continue;
+			}
+
+			foreach ( $module->getDefinitionSummary( $context )[0]['pages'] as $pageName => $value ) {
+				$page = $pageStore->getExistingPageByText( $pageName );
+
+				if ( $page ) {
+					$cacheTags[] = "{$this->config->get( MainConfigNames::DBname )}:page:{$page->getId()}";
+				}
+			}
+		}
+
+		if ( count( $cacheTags ) > 0 ) {
+			$extraHeaders[] = 'Cache-Tag: ' . implode( ', ', $cacheTags );
 		}
 	}
 }
