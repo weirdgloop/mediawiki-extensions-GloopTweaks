@@ -67,8 +67,6 @@
 		"BeforePageDisplay": "main",
 		"ContactForm": "main",
 		"GetLocalURL::Internal": "main",
-		"GlobalBlockingBlockedIpMsg": "main",
-		"GlobalBlockingBlockedIpXffMsg": "main",
 		"LocalFilePurgeThumbnails": "main",
 		"MessageCacheFetchOverrides": "main",
 		"OpenSearchUrls": "main",

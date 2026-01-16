@@ -273,28 +273,6 @@ class GloopTweaksHooks implements
 	}
 
 	/**
-	 * Set the message on GlobalBlocking IP block being triggered
-	 *
-	 * @param string &$msg The message to over-ride
-	 */
-	public function onGlobalBlockingBlockedIpMsg( &$msg ) {
-		if ( $this->config->get( 'GloopTweaksEnableMessageOverrides' ) ) {
-			$msg = 'weirdgloop-globalblocking-ipblocked';
-		}
-	}
-
-	/**
-	 * Set the message on GlobalBlocking XFF block being triggered
-	 *
-	 * @param string &$msg The message to over-ride
-	 */
-	public function onGlobalBlockingBlockedIpXffMsg( &$msg ) {
-		if ( $this->config->get( 'GloopTweaksEnableMessageOverrides' ) ) {
-			$msg = 'weirdgloop-globalblocking-ipblocked-xff';
-		}
-	}
-
-	/**
 	 * @param SpecialUpload $upload
 	 * @return void
 	 * @throws ErrorPageError
@@ -571,8 +549,8 @@ class GloopTweaksHooks implements
 	 * @throws MWException
 	 */
 	public function onTestCanonicalRedirect( $request, $title, $output ): bool {
-		global $wgScriptPath;
-		if ( $title->isMainPage() && str_starts_with( $request->getRequestURL(), $wgScriptPath . '/?' ) ) {
+		if ( $title->isMainPage() && str_starts_with(
+			$request->getRequestURL(), $this->config->get( MainConfigNames::ScriptPath ) . '/?' ) ) {
 			return false;
 		}
 
