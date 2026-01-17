@@ -25,7 +25,6 @@ use MediaWiki\Hook\SkinAddFooterLinksHook;
 use MediaWiki\Hook\SkinCopyrightFooterMessageHook;
 use MediaWiki\Hook\TestCanonicalRedirectHook;
 use MediaWiki\Hook\TitleSquidURLsHook;
-use MediaWiki\Hook\UploadForm_initialHook;
 use MediaWiki\Html\Html;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
@@ -80,7 +79,6 @@ class GloopTweaksHooks implements
 	PageUndeleteCompleteHook,
 	SkinCopyrightFooterMessageHook,
 	SkinAddFooterLinksHook,
-	UploadForm_initialHook,
 	UserGetRightsRemoveHook,
 	GetUserPermissionsErrorsHook,
 	ArticleViewHeaderHook,
@@ -277,27 +275,6 @@ class GloopTweaksHooks implements
 				],
 				$skin->msg( 'weirdgloop-contact' )->text()
 			);
-		}
-	}
-
-	/**
-	 * @param SpecialUpload $upload
-	 * @return void
-	 * @throws ErrorPageError
-	 */
-	public function onUploadForm_initial( $upload ): void {
-		/**
-		 * Require the creation of MediaWiki:Licenses to enable uploading.
-		 *
-		 * Do not require it when licenses is in $wgForceUIMsgAsContentMsg,
-		 * to prevent checking each subpage of MediaWiki:Licenses.
-		 */
-		if ( $this->config->get( 'GloopTweaksRequireLicensesToUpload' ) ) {
-			if ( !in_array( 'licenses', $this->config->get( MainConfigNames::ForceUIMsgAsContentMsg ) )
-				&& wfMessage( 'licenses' )->inContentLanguage()->isDisabled()
-			) {
-				throw new ErrorPageError( 'uploaddisabled', 'weirdgloop-upload-nolicenses' );
-			}
 		}
 	}
 
