@@ -57,7 +57,8 @@
 		"main": {
 			"class": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks",
 			"services": [
-				"MainConfig"
+				"MainConfig",
+				"LinkRenderer"
 			]
 		}
 	},

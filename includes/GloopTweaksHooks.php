@@ -30,11 +30,13 @@ use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
+use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Logging\ManualLogEntry;
 use MediaWiki\Mail\MailAddress;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\Message\Message;
 use MediaWiki\Page\Hook\ArticleViewHeaderHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
 use MediaWiki\Page\Hook\PageUndeleteCompleteHook;
@@ -65,6 +67,7 @@ use MediaWiki\Title\Title;
 use MediaWiki\WikiMap\WikiMap;
 use MediaWiki\Page\WikiPage;
 use MessageSpecifier;
+use Wikimedia\HtmlArmor\HtmlArmor;
 use Wikimedia\Minify\CSSMin;
 
 /**
@@ -98,8 +101,11 @@ class GloopTweaksHooks implements
 {
 	private Config $config;
 
-	public function __construct( Config $config ) {
+	private LinkRenderer $linkRenderer;
+
+	public function __construct( Config $config, LinkRenderer $linkRenderer ) {
 		$this->config = $config;
+		$this->linkRenderer = $linkRenderer;
 	}
 
 	/**
@@ -239,14 +245,20 @@ class GloopTweaksHooks implements
 	/**
 	 * @param Title $title
 	 * @param string $type
-	 * @param string &$msg
+	 * @param MessageSpecifier &$msg
 	 */
 	public function onSkinCopyrightFooterMessage( $title, $type, &$msg ): void {
-		if ( $this->config->get( 'GloopTweaksEnableMessageOverrides' ) ) {
-			if ( $type !== 'history' ) {
-				$msg = 'weirdgloop-copyright';
-			}
+		if ( !$this->config->get( 'GloopTweaksEnableMessageOverrides' ) || $type === 'history' ) {
+			return;
 		}
+
+		$link = $this->linkRenderer->makeExternalLink(
+			$this->config->get( MainConfigNames::RightsUrl ),
+			new HtmlArmor( $this->config->get( MainConfigNames::RightsText ) ),
+			$title
+		);
+
+		$msg = Message::newFromSpecifier( 'weirdgloop-copyright' )->rawParams( $link );
 	}
 
 	/**
