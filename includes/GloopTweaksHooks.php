@@ -5,15 +5,20 @@ namespace MediaWiki\Extension\GloopTweaks;
 use CdnCacheUpdate;
 use DeferredUpdates;
 use ErrorPageError;
+use Exception;
 use Html;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
+use MediaWiki\Cache\LinkCache;
 use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use ManualLogEntry;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\Page\ProperPageIdentity;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Parser\StripState;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\ResourceLoader\ResourceLoader;
 use MediaWiki\Revision\RevisionRecord;
@@ -561,6 +566,49 @@ class GloopTweaksHooks {
 
 			$request = $module->getRequest();
 			GloopTweaksUtils::addCacheTag( $request, $cacheTags );
+		}
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param string &$text
+	 * @param StripState $stripState
+	 * @return void
+	 */
+	public static function onParserBeforeInternalParse( $parser, &$text, $stripState ) {
+		global $wgGloopTweaksPagelinksCachePrewarmReasons;
+
+		try {
+			$parserOptions = $parser->getOptions();
+			if (
+				$parserOptions !== null &&
+				in_array( $parserOptions->getRenderReason(), $wgGloopTweaksPagelinksCachePrewarmReasons ) &&
+				$parser->getTitle()->canExist()
+			) {
+				$id = $parser->getTitle()->getId();
+				if ( $id !== 0 ) {
+					$services = MediaWikiServices::getInstance();
+					$res = $services->getConnectionProvider()->getReplicaDatabase()
+						->newSelectQueryBuilder()
+						->select( LinkCache::getSelectFields() )
+						->from( 'pagelinks' )
+						->where( [ 'pl_from' => $parser->getTitle()->getId() ] )
+						->join( 'linktarget', null, 'lt_id = pl_target_id' )
+						->join( 'page', null, [
+							'page_title = lt_title',
+							'page_namespace = lt_namespace',
+						] )
+						->caller( __METHOD__ )
+						->fetchResultSet();
+
+					$batch = $services->getLinkBatchFactory()->newLinkBatch();
+					$batch->addResultToCache( $services->getLinkCache(), $res );
+				}
+			}
+		} catch ( Exception $exception ) {
+			// Catch and log any exceptions. The batch query is optional, and it should not cause an error if something
+			// doesn't work.
+			LoggerFactory::getInstance( 'GloopTweaks' )->error( $exception );
 		}
 	}
 }

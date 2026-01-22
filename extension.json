@@ -68,6 +68,7 @@
 		"PageMoveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageMoveComplete",
 		"PageSaveComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageSaveComplete",
 		"PageUndeleteComplete": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onPageUndeleteComplete",
+		"ParserBeforeInternalParse": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onParserBeforeInternalParse",
 		"ResourceLoaderRegisterModules": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onResourceLoaderRegisterModules",
 		"ScribuntoExternalLibraries": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onScribuntoExternalLibraries",
 		"SkinAddFooterLinks": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks::onSkinAddFooterLinks",
@@ -140,6 +141,18 @@
 		},
 		"NoRobots": {
 			"value": false
+		},
+		"PagelinksCachePrewarmReasons": {
+			"value": [
+				"CategoryMembershipChangeJob",
+				"diff-page",
+				"page-preview",
+				"page_view",
+				"page_view_oldid",
+				"ParserOutputForIndexing",
+				"RefreshLinksJob",
+				"refresh-links-maintenance"
+			]
 		},
 		"ProtectSiteInterface": {
 			"value": true
