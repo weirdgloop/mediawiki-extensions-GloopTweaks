@@ -146,6 +146,7 @@
 			"value": [
 				"CategoryMembershipChangeJob",
 				"diff-page",
+				"page-edit",
 				"page-preview",
 				"page_view",
 				"page_view_oldid",
