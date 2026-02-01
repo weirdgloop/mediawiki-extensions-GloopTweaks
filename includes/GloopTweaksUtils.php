@@ -2,33 +2,39 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use MediaWiki\DAO\WikiAwareEntity;
+use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Content\TextContent;
 use Wikimedia\AtEase\AtEase;
 
 class GloopTweaksUtils {
-	// Retrieve Special:Contact filter text from central DB.
-	private static function getContactFilterText() {
-		global $wgGloopTweaksNetworkCentralDB;
-		$services = MediaWikiServices::getInstance();
-
-		$title = $services->getTitleParser()->parseTitle( 'MediaWiki:Weirdgloop-contact-filter' );
-		$store = $services->getRevisionStoreFactory()->getRevisionStore( $wgGloopTweaksNetworkCentralDB );
-		$rev = $store->getRevisionByTitle( $title );
-
+	public static function getContentFromWiki( MediaWikiServices $services, string $pageName, string $wiki ) {
+		$targetWikiIsCurrentWiki = $wiki === $services->getMainConfig()->get( MainConfigNames::DBname );
+		$page = $services->getPageStoreFactory()
+			->getPageStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
+			->getPageByText( $pageName );
+		$rev = $services->getRevisionStoreFactory()
+			->getRevisionStore($targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
+			->getRevisionByTitle( $page );
 		$content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
 
-		if ( !( $content instanceof TextContent ) ) {
-			return '';
-		}
-
-		return $content->getText();
+		return $content;
 	}
 
 	// Prepare the Special:Contact filter regexes.
 	private static function getContactFilter() {
-		$filterText = self::getContactFilterText();
+		global $wgGloopTweaksNetworkCentralDB;
+
+		$filterContent = self::getContentFromWiki( MediaWikiServices::getInstance(),
+			'MediaWiki:Weirdgloop-contact-filter', $wgGloopTweaksNetworkCentralDB );
+		if ( !( $filterContent instanceof TextContent ) ) {
+			$filterText = '';
+		} else {
+			$filterText = $filterContent->getText();
+		}
+
 		$regexes = [];
 
 		$lines = preg_split( "/\r?\n/", $filterText );

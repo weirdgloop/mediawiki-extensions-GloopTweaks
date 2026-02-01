@@ -2,6 +2,7 @@
 
 namespace MediaWiki\Extension\GloopTweaks\ResourceLoader;
 
+use MediaWiki\Extension\GloopTweaks\GloopTweaksUtils;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\ResourceLoader\Context;
@@ -16,13 +17,13 @@ class FixedWidthStyleModule extends SiteStylesModule {
 	 */
 	protected function getContent( $titleText, Context $context ) {
 		global $wgGloopTweaksFamilyCentralDB;
-		$services = MediaWikiServices::getInstance();
 
-		$title = $services->getTitleParser()->parseTitle( $titleText );
-		$store = $services->getRevisionStoreFactory()->getRevisionStore( $wgGloopTweaksFamilyCentralDB );
-		$rev = $store->getRevisionByTitle( $title );
+		$content = GloopTweaksUtils::getContentFromWiki(
+			MediaWikiServices::getInstance(),
+			$titleText,
+			$wgGloopTweaksFamilyCentralDB
+		);
 
-		$content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
 		if ( !$content ) {
 			return null; // No content found
 		}
