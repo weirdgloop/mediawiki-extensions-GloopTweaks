@@ -1,6 +1,7 @@
 <?php
 // This file is intended to be symlinked into $IP.
 
+use MediaWiki\DAO\WikiAwareEntity;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
@@ -23,9 +24,13 @@ function wfRobotsMain() {
 
     $services = MediaWikiServices::getInstance();
 
-    $title = $services->getTitleParser()->parseTitle( 'MediaWiki:Robots.txt' );
-    $store = $services->getRevisionStoreFactory()->getRevisionStore( $wgGloopTweaksNetworkCentralDB );
-    $rev = $store->getRevisionByTitle( $title );
+	$centralWikiIsCurrentWiki = $wgGloopTweaksNetworkCentralDB === $wgDBname;
+	$page = $services->getPageStoreFactory()
+		->getPageStore( $centralWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wgGloopTweaksNetworkCentralDB )
+		->getPageByText( 'MediaWiki:Robots.txt' );
+	$rev = $services->getRevisionStoreFactory()
+		->getRevisionStore($centralWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wgGloopTweaksNetworkCentralDB )
+		->getRevisionByTitle( $page );
     $content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
     $lastModified = $rev ? $rev->getTimestamp() : null;
     $text = ( $content instanceof TextContent ) ? $content->getText() : '';
