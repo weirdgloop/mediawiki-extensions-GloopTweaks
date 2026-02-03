@@ -122,7 +122,8 @@ class GloopTweaksHooks implements
 				'mobile-frontend-copyright',
 				'contactpage-pagetext',
 				'newusermessage-editor',
-				'revisionslider-help-dialog-slide1'
+				'revisionslider-help-dialog-slide1',
+				'checkuser-tempaccount-enable-preference-description'
 			];
 
 			foreach ( $keysToOverride as $key ) {
