@@ -6,7 +6,7 @@
 		]
 	},
 	"glooptweaks-desc": "為Weird Gloop網路下的所有wiki提供額外功能",
-	"weirdgloop-copyright": "本網站內容採用$1授權，[https://meta.weirdgloop.org/w/Licensing 附加條款亦可能應用]。\n\n",
+	"weirdgloop-copyright": "本網站內容採用$1授權，[https://meta.weirdgloop.org/w/Licensing 附加條款亦可能應用]。",
 	"weirdgloop-upload-nolicenses": "此wiki未啟用上傳檔案。\n\n如果您希望在此wiki啟用此特殊頁面上傳檔案，您需要向管理員請求編輯[[MediaWiki:Licenses]]以加入一個或更多授權選項。\n\n致管理員：您可在此連結頁面使用以下格式：<code>* 模板名 (Template name)|標籤 (Label)</code>。使用任意文字即可啟用上傳選項而不需要授權選項。",
 	"weirdgloop-globalblocking-ipblocked": "'''您的IP位址已在所有wiki上被封鎖。'''\n\n封鎖由$1 ($2)做出。\n原因是''$3''。\n\n* 封鎖開始時間：$4\n* 封鎖結束時間：$5\n\n您目前的IP位址是$6。\n請在您發送的所有請求中附註以上所有詳細資料。\n\n若您認為您被誤封，請在[[Special:Contact]]聯絡管理員（只接受英文請求） 。",
 	"weirdgloop-globalblocking-ipblocked-xff": "'''您的請求使用的一個或以上的代理位址已在所有wiki上被封鎖。'''\n\n封鎖由$1 ($2)做出。\n原因是''$3''。\n\n* 封鎖開始時間：$4\n* 封鎖結束時間：$5\n\n您目前的IP位址是$6。\n請在您發送的所有請求中附註以上所有詳細資料。\n\n若您認為您被誤封，請在[[Special:Contact]]聯絡管理員（只接受英文請求） 。",
