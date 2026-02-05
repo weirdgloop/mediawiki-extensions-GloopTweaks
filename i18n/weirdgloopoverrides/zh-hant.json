@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"NekoCharm (MysticNebula70)"
+			"NekoCharm (MysticNebula70)",
+			"Bilin Tsui (anterdc99)"
 		]
 	},
 	"weirdgloop-privacypage": "wg:privacy",
@@ -10,5 +11,6 @@
 	"weirdgloop-mobile-frontend-copyright": "本網站內容採用$1授權，<a href=\"https://meta.weirdgloop.org/w/Licensing\">附加條款亦可能應用</a>。\n\n",
 	"weirdgloop-contactpage-pagetext": "下面的表單可以用來聯絡Weird Gloop，您正在造訪的wiki的運營者。若您對wiki本身有任何問題，更好的方法是聯絡一位編輯者或管理員。'''如果您需要提交DMCA下架請求，請使用[[Special:Contact/dmca|這個表單]]。'''",
 	"weirdgloop-newusermessage-editor": "新使用者訊息",
-	"weirdgloop-revisionslider-help-dialog-slide1": "修訂時間軸幫助您在差異頁面上導覽並比較修訂版本。若您有任何問題，請向我們回饋意見！"
+	"weirdgloop-revisionslider-help-dialog-slide1": "修訂時間軸幫助您在差異頁面上導覽並比較修訂版本。若您有任何問題，請向我們回饋意見！",
+	"weirdgloop-checkuser-tempaccount-enable-preference-description": "開啟此偏好設定即代表您同意遵守[https://weirdgloop.org/privacy Weird Gloop的隱私權政策]。\n\n您不得存取、使用或揭露臨時帳號的IP位址資訊，除非此操作對於<b>調查或處理破壞行為、濫用、垃圾訊息、騷擾、擾亂性行為及其他違反社群方針的行為</b>確屬合理必要。若您確實需要與他人分享該資訊，必須注意分享的方式與場合，並應在他人不再有合理必要查看該資訊時予以刪除。\n\n其他有權存取臨時帳號IP位址的使用者將能夠看到您已開啟此偏好設定。"
 }

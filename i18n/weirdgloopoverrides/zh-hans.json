@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Dianliang233",
-			"NekoCharm (MysticNebula70)"
+			"NekoCharm (MysticNebula70)",
+			"Bilin Tsui (anterdc99)"
 		]
 	},
 	"weirdgloop-privacypage": "wg:privacy",
@@ -11,5 +12,6 @@
 	"weirdgloop-mobile-frontend-copyright": "本网站内容采用$1授权，<a href=\"https://meta.weirdgloop.org/w/Licensing\">附加条款亦可能应用</a>。\n\n",
 	"weirdgloop-contactpage-pagetext": "下面的表单可以用来联系Weird Gloop，您正在访问的wiki的运营者。若您对wiki本身有任何问题，更好的方法是联系一位编辑者或管理员。'''如果您需要提交DMCA下架请求，请使用[[Special:Contact/dmca|这个表单]]。'''",
 	"weirdgloop-newusermessage-editor": "新用户消息",
-	"weirdgloop-revisionslider-help-dialog-slide1": "修订滑块帮助您在差异页面上导航并比较修订版本。若您有任何问题，请向我们反馈！"
+	"weirdgloop-revisionslider-help-dialog-slide1": "修订滑块帮助您在差异页面上导航并比较修订版本。若您有任何问题，请向我们反馈！",
+	"weirdgloop-checkuser-tempaccount-enable-preference-description": "开启此偏好设置即表示您同意遵守[https://weirdgloop.org/privacy Weird Gloop的隐私政策]。\n\n您不得访问、使用或披露临时账号的IP地址信息，除非此操作对于<b>调查或处理破坏行为、滥用、垃圾信息、骚扰、扰乱性行为及其他违反社区方针的行为</b>确属合理必要。若您确实需要与他人分享该信息，必须注意分享的方式和场合，并应在他人不再有合理必要查看该信息时予以删除。\n\n其他有权访问临时账号IP地址的用户将能够看到您已开启此偏好设置。"
 }
