@@ -8,68 +8,69 @@ use MediaWiki\Revision\SlotRecord;
 define( 'MW_NO_SESSION', 1 );
 define( 'MW_ENTRY_POINT', 'robots' );
 
-require dirname($_SERVER['SCRIPT_FILENAME']) . '/includes/WebStart.php';
+require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
 
 wfRobotsMain();
 
 function wfRobotsMain() {
-    global $wgGloopTweaksNetworkCentralDB, $wgDBname, $wgCanonicalServer, $wgScriptPath, $wgArticlePath, $wgGloopTweaksNoRobots, $wgNamespaceRobotPolicies;
+	global $wgGloopTweaksNetworkCentralDB, $wgDBname, $wgCanonicalServer, $wgScriptPath, $wgArticlePath,
+		   $wgGloopTweaksNoRobots, $wgNamespaceRobotPolicies;
 
-    if ( $wgGloopTweaksNoRobots ) {
-        header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=300, revalidate-while-stale=300' );
-        header( 'Content-Type: text/plain; charset=utf-8' );
-        echo "User-agent: *\nDisallow: /";
-        return;
-    }
+	if ( $wgGloopTweaksNoRobots ) {
+		header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=300, revalidate-while-stale=300' );
+		header( 'Content-Type: text/plain; charset=utf-8' );
+		echo "User-agent: *\nDisallow: /";
+		return;
+	}
 
-    $services = MediaWikiServices::getInstance();
+	$services = MediaWikiServices::getInstance();
 
 	$centralWikiIsCurrentWiki = $wgGloopTweaksNetworkCentralDB === $wgDBname;
 	$page = $services->getPageStoreFactory()
 		->getPageStore( $centralWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wgGloopTweaksNetworkCentralDB )
 		->getPageByText( 'MediaWiki:Robots.txt' );
 	$rev = $services->getRevisionStoreFactory()
-		->getRevisionStore($centralWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wgGloopTweaksNetworkCentralDB )
+		->getRevisionStore( $centralWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wgGloopTweaksNetworkCentralDB )
 		->getRevisionByTitle( $page );
-    $content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
-    $lastModified = $rev ? $rev->getTimestamp() : null;
-    $text = ( $content instanceof TextContent ) ? $content->getText() : '';
+	$content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
+	$lastModified = $rev ? $rev->getTimestamp() : null;
+	$text = ( $content instanceof TextContent ) ? $content->getText() : '';
 
 	if ( $rev ) {
-        $wiki = $wgGloopTweaksNetworkCentralDB ?? $wgDBname;
+		$wiki = $wgGloopTweaksNetworkCentralDB ?? $wgDBname;
 		header( "Cache-Tag: $wiki:page:{$rev->getPageId($wiki)}" );
 	}
 
-    // Replace template strings on imported text
-    $text = str_replace(
-        [ '{articlePath}', '{scriptPath}' ],
-        [ $wgArticlePath, $wgScriptPath ],
-        $text
-    );
+	// Replace template strings on imported text
+	$text = str_replace(
+		[ '{articlePath}', '{scriptPath}' ],
+		[ $wgArticlePath, $wgScriptPath ],
+		$text
+	);
 
-    // Disallow noindexed namespaces in robots.txt as well.
-    $contLang = $services->getContentLanguage();
-    $langConverter = $services->getLanguageConverterFactory()->getLanguageConverter( $contLang );
-    $namespaceInfo = $services->getNamespaceInfo();
-    $namespaces = [];
+	// Disallow noindexed namespaces in robots.txt as well.
+	$contLang = $services->getContentLanguage();
+	$langConverter = $services->getLanguageConverterFactory()->getLanguageConverter( $contLang );
+	$namespaceInfo = $services->getNamespaceInfo();
+	$namespaces = [];
 
-    // NS_SPECIAL is hardcoded as noindex, but not normally in $wgNamespaceRobotPolicies.
-    $wgNamespaceRobotPolicies[NS_SPECIAL] = 'noindex';
+	// NS_SPECIAL is hardcoded as noindex, but not normally in $wgNamespaceRobotPolicies.
+	$wgNamespaceRobotPolicies[NS_SPECIAL] = 'noindex';
 
-    foreach ( $wgNamespaceRobotPolicies as $ns => $policy ) {
-        if ( str_contains( $policy, 'noindex' ) ) {
-            $name = $contLang->getNsText( $ns );
-            if ( $name !== '' ) {
-                $namespaces[] = $name;
-            }
-        }
-    }
+	foreach ( $wgNamespaceRobotPolicies as $ns => $policy ) {
+		if ( str_contains( $policy, 'noindex' ) ) {
+			$name = $contLang->getNsText( $ns );
+			if ( $name !== '' ) {
+				$namespaces[] = $name;
+			}
+		}
+	}
 
-    $disallowText = 'User-Agent: *';
-    $articlePath = str_replace( '$1', '', $wgArticlePath );
-    foreach ( $namespaces as $ns ) {
-        $lcns = strtolower($ns);
-        $disallowText .= <<<DISALLOW
+	$disallowText = 'User-Agent: *';
+	$articlePath = str_replace( '$1', '', $wgArticlePath );
+	foreach ( $namespaces as $ns ) {
+		$lcns = strtolower( $ns );
+		$disallowText .= <<<DISALLOW
 
         Disallow: $articlePath$ns:
         Disallow: $articlePath$ns%3A
@@ -79,24 +80,24 @@ function wfRobotsMain() {
         Disallow: $wgScriptPath/*?*&title=$ns:
         Disallow: $wgScriptPath/*?*&title=$ns%3A
         DISALLOW;
-    }
-    if ( $text ) {
-        $text = str_replace( 'User-Agent: *', $disallowText, $text );
-    } else {
-        $text = $disallowText;
-    }
+	}
+	if ( $text ) {
+		$text = str_replace( 'User-Agent: *', $disallowText, $text );
+	} else {
+		$text = $disallowText;
+	}
 
-    header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=3600, revalidate-while-stale=300' );
-    header( 'Content-Type: text/plain; charset=utf-8' );
+	header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=3600, revalidate-while-stale=300' );
+	header( 'Content-Type: text/plain; charset=utf-8' );
 
-    if ( $lastModified ) {
-        header( 'Last-Modified: ' . wfTimestamp( TS_RFC2822, $lastModified ) );
-    }
+	if ( $lastModified ) {
+		header( 'Last-Modified: ' . wfTimestamp( TS_RFC2822, $lastModified ) );
+	}
 
-    $sitemap = "Sitemap: $wgCanonicalServer$wgScriptPath/images/sitemaps/index.xml";
-    if ( $text ) {
-        echo $text . "\n\n" . $sitemap;
-    } else {
-        echo $sitemap;
-    }
+	$sitemap = "Sitemap: $wgCanonicalServer$wgScriptPath/images/sitemaps/index.xml";
+	if ( $text ) {
+		echo $text . "\n\n" . $sitemap;
+	} else {
+		echo $sitemap;
+	}
 }

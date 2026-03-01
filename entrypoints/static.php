@@ -1,16 +1,20 @@
 <?php
 // This file is intended to be symlinked into $IP.
-// Based on https://github.com/wikimedia/operations-mediawiki-config/blob/4cd21ef34b81dd10b04c230f7e9eedc66bce1a87/w/static.php
+// Based on
+//	https://github.com/wikimedia/operations-mediawiki-config/blob/4cd21ef34b81dd10b04c230f7e9eedc66bce1a87/w/static.php
 
 define( 'MW_NO_SESSION', 1 );
 define( 'MW_ENTRY_POINT', 'static' );
 
-require dirname($_SERVER['SCRIPT_FILENAME']) . '/includes/WebStart.php';
+require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
 
-function wfStaticShowError ( $status ) {
+/**
+ * @param int $status
+ * @return void
+ */
+function wfStaticShowError( $status ) {
 	header( 'Cache-Control: public, max-age=0, must-revalidate, s-maxage=60, stale-while-revalidate=60' );
 	HttpStatus::header( $status );
-	return;
 }
 
 function wfStaticMain() {
@@ -35,7 +39,8 @@ function wfStaticMain() {
 	// Strip leading slash.
 	$filePath = substr( $urlPath, 1 );
 
-	$ctype = StreamFile::contentTypeFromPath( $filePath, /* safe: not for upload */ false );
+	// safe: not for upload
+	$ctype = StreamFile::contentTypeFromPath( $filePath, false );
 	if ( !$ctype || $ctype === 'unknown/unknown' ) {
 		// Directory, extension-less file or unknown extension
 		wfStaticShowError( 404 );
@@ -45,6 +50,7 @@ function wfStaticMain() {
 	// Keep track of how well the requests are being cached.
 	$stats = MediaWiki\MediaWikiServices::getInstance()->getStatsdDataFactory();
 
+	// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 	$stat = @stat( $filePath );
 	if ( !$stat ) {
 		$stats->increment( 'wglstatic.notfound' );
@@ -63,8 +69,8 @@ function wfStaticMain() {
 		$stats->increment( 'wglstatic.nohash' );
 		header( 'Cache-Control: public, max-age=86400, must-revalidate, s-maxage=86400, stale-while-revalidate=300' );
 	}
-	// Otherwise either short cache if it is a mismatch, or immutable if it matches or wouldn't be produced by MediaWiki.
-	else {
+	// Otherwise either short cache if it is a mismatch, or immutable if it matches or wouldn't be produced by MW.
+ else {
 		$validHash = preg_match( '/^[a-fA-F0-9]{5}$/', $urlHash );
 		$fileHash = $validHash ? substr( md5_file( $filePath ), 0, 5 ) : null;
 
@@ -74,11 +80,11 @@ function wfStaticMain() {
 			header( 'Cache-Control: public, max-age=31536000, immutable' );
 		}
 		// Otherwise, it mismatched, so make sure the resource stays reasonably fresh.
-		else {
+ else {
 			$stats->increment( 'wglstatic.mismatch' );
 			header( 'Cache-Control: public, max-age=0, must-revalidate, s-maxage=60, stale-while-revalidate=60' );
-		}
-	}
+ }
+ }
 
 	if ( !empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
 		$ims = preg_replace( '/;.*$/', '', $_SERVER['HTTP_IF_MODIFIED_SINCE'] );

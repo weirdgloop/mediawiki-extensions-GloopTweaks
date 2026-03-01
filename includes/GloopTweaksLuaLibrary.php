@@ -2,9 +2,9 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
-use MediaWiki\MediaWikiServices;
-use MediaWiki\Parser\Parser;
 use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LibraryBase;
+use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LuaError;
+use MediaWiki\MediaWikiServices;
 
 class GloopTweaksLuaLibrary extends LibraryBase {
 	public function register() {
@@ -17,7 +17,13 @@ class GloopTweaksLuaLibrary extends LibraryBase {
 		);
 	}
 
-	// Based on CoreParserFunctions::filepath().
+	/**
+	 * Based on CoreParserFunctions::filepath().
+	 * @param string $name
+	 * @param string $width
+	 * @return array|null[]
+	 * @throws LuaError
+	 */
 	public function filepath( $name, $width ) {
 		$this->checkType( 'mw.ext.GloopTweaks.filepath', 1, $name, 'string' );
 		$this->incrementExpensiveFunctionCount();

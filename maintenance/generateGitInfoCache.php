@@ -2,18 +2,18 @@
 
 namespace MediaWiki\Extension\GloopTweaks\Maintenance;
 
-use MediaWiki\Utils\GitInfo;
 use MediaWiki\Maintenance\Maintenance;
+use MediaWiki\Utils\GitInfo;
 
-if ( getenv( 'MW_INSTALL_PATH' ) ) {
-	$IP = getenv( 'MW_INSTALL_PATH' );
-} else {
+$IP = getenv( 'MW_INSTALL_PATH' );
+if ( $IP === false ) {
 	$IP = __DIR__ . '/../../..';
 }
 require_once "$IP/maintenance/Maintenance.php";
 
 class GenerateGitInfoCache extends Maintenance {
 	public function execute() {
+		// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix
 		global $IP;
 
 		$this->output( "Generating GitInfo cache...\n" );
@@ -24,13 +24,13 @@ class GenerateGitInfoCache extends Maintenance {
 			"$IP/skins/*",
 		];
 
-		foreach ($patterns as $pattern) {
-			$directories = glob($pattern);
+		foreach ( $patterns as $pattern ) {
+			$directories = glob( $pattern );
 
-			foreach ($directories as $directory) {
-				if (is_dir($directory)) {
+			foreach ( $directories as $directory ) {
+				if ( is_dir( $directory ) ) {
 					$this->output( "Generating GitInfo cache for '$directory'.\n" );
-					(new GitInfo( $directory, false ))->precomputeValues();
+					( new GitInfo( $directory, false ) )->precomputeValues();
 				}
 			}
 		}

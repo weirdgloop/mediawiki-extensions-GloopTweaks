@@ -20,6 +20,9 @@ class GloopEventRelayer extends EventRelayer {
 	/** @var string */
 	private $redisServer;
 
+	/**
+	 * @param array $params
+	 */
 	public function __construct( array $params ) {
 		parent::__construct( $params );
 		$this->config = MediaWikiServices::getInstance()->getMainConfig();
@@ -50,10 +53,10 @@ class GloopEventRelayer extends EventRelayer {
 	}
 
 	/**
-	* Send Cloudflare purge requests via curl.
-	*
-	* @param string[] $urls List of URLs to purge
-	*/
+	 * Send Cloudflare purge requests via curl.
+	 *
+	 * @param string[] $urls List of URLs to purge
+	 */
 	private function purgeViaCurl( array $urls ) {
 		// Break the purge requests into chunks sized to Cloudflare's per-request URL limit.
 		$chunks = array_chunk( $urls, self::MAX_URLS_PER_REQUEST );
@@ -68,7 +71,8 @@ class GloopEventRelayer extends EventRelayer {
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
 		curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
-		curl_setopt( $ch, CURLOPT_URL, 'https://api.cloudflare.com/client/v4/zones/' . $this->config->get( 'GloopTweaksCFZone' ) . '/purge_cache' );
+		curl_setopt( $ch, CURLOPT_URL, 'https://api.cloudflare.com/client/v4/zones/' .
+			$this->config->get( 'GloopTweaksCFZone' ) . '/purge_cache' );
 
 		// Perform the purge requests a chunk at a time.
 		foreach ( $chunks as $chunk ) {
@@ -116,7 +120,7 @@ class GloopEventRelayer extends EventRelayer {
 			tonumber(redis.call('ZRANGE', KEYS[1], '0', '0', 'REV', 'WITHSCORES')[2]) or 0,
 			tonumber(redis.call('ZRANGE', KEYS[2], '0', '0', 'REV', 'WITHSCORES')[2]) or 0
 		)
-		-- Use the highest score from above to generate unique scores for each entry that is being added to the ready queue.
+		-- Use the highest score to generate unique scores for each entry that is being added to the ready queue.
 		local numAdded = 0
 		local statAdded = 0
 		repeat
@@ -143,7 +147,7 @@ LUA;
 					// KEYS[2]
 					"cfpurger:queue:$zone:$method:ready",
 					// ARGV
-					...$entries # ARGV
+					...$entries
 				],
 				// Number of KEYS before ARGV.
 				2

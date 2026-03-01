@@ -2,28 +2,39 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use MediaWiki\Content\Content;
+use MediaWiki\Content\TextContent;
 use MediaWiki\DAO\WikiAwareEntity;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Request\WebRequest;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\Content\TextContent;
 use Wikimedia\AtEase\AtEase;
 
 class GloopTweaksUtils {
+	/**
+	 * @param MediaWikiServices $services
+	 * @param string $pageName
+	 * @param string $wiki
+	 * @return Content|null
+	 */
 	public static function getContentFromWiki( MediaWikiServices $services, string $pageName, string $wiki ) {
 		$targetWikiIsCurrentWiki = $wiki === $services->getMainConfig()->get( MainConfigNames::DBname );
 		$page = $services->getPageStoreFactory()
 			->getPageStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
 			->getPageByText( $pageName );
 		$rev = $services->getRevisionStoreFactory()
-			->getRevisionStore($targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
+			->getRevisionStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
 			->getRevisionByTitle( $page );
 		$content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
 
 		return $content;
 	}
 
-	// Prepare the Special:Contact filter regexes.
+	/**
+	 * Prepare the Special:Contact filter regexes.
+	 * @return array
+	 */
 	private static function getContactFilter() {
 		global $wgGloopTweaksNetworkCentralDB;
 
@@ -54,8 +65,10 @@ class GloopTweaksUtils {
 
 	/**
 	 * Adds the Cache-Tag header to the request.
+	 * @param WebRequest &$request
+	 * @param array $cacheTags
 	 */
-	public static function addCacheTag( &$request, $cacheTags ) {
+	public static function addCacheTag( WebRequest &$request, array $cacheTags ) {
 		global $wgGloopTweaksCacheTagDebug;
 		if ( count( $cacheTags ) > 0 ) {
 			$request->response()->header( 'Cache-Tag:' . implode( ',', $cacheTags ), false );
@@ -67,7 +80,8 @@ class GloopTweaksUtils {
 	}
 
 	/**
-	 * Implements spam filter for Special:Contact, checks against [[MediaWiki:Weirdgloop-contact-filter]] on metawiki. Regex per line and use '#' for comments.
+	 * Implements spam filter for Special:Contact, checks against [[MediaWiki:Weirdgloop-contact-filter]] on metawiki.
+	 * Regex per line and use '#' for comments.
 	 *
 	 * @param string $text - The message text to check for spam.
 	 * @return bool
@@ -80,7 +94,8 @@ class GloopTweaksUtils {
 				'GloopTweaks',
 				'contact-filter-regexes'
 			),
-			300, // 5 minute cache time as this isn't a high frequency check.
+			// 5 minute cache time as this isn't a high frequency check.
+			300,
 			function () {
 				return self::getContactFilter();
 			}

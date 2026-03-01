@@ -37,6 +37,9 @@ class RefreshLinksBatchJob extends Job implements GenericParameterJob {
 	/** @var IDatabase|null */
 	private $dbw;
 
+	/**
+	 * @param array $params
+	 */
 	public function __construct( array $params ) {
 		parent::__construct( 'refreshLinksBatch', $params );
 		$this->executionFlags |= self::JOB_NO_EXPLICIT_TRX_ROUND;
@@ -122,7 +125,6 @@ class RefreshLinksBatchJob extends Job implements GenericParameterJob {
 		] );
 		DeferredUpdates::doUpdates();
 	}
-
 
 	/**
 	 * Removes non-existing links from pages from pagelinks, imagelinks,

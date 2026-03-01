@@ -32,15 +32,15 @@
 namespace MediaWiki\Extension\GloopTweaks\Maintenance;
 
 use FilesystemIterator;
+use MediaWiki\Exception\MWException;
 use MediaWiki\Maintenance\Maintenance;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Exception\MWException;
+use MediaWiki\Title\Title;
+use MediaWiki\WikiMap\WikiMap;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use MediaWiki\Title\Title;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\IResultWrapper;
-use MediaWiki\WikiMap\WikiMap;
 
 if ( getenv( 'MW_INSTALL_PATH' ) ) {
 	$IP = getenv( 'MW_INSTALL_PATH' );
@@ -350,8 +350,10 @@ class GenerateSitemap extends Maintenance {
 
 			$fns = $contLang->getFormattedNsText( $namespace );
 			$this->output( "$namespace ($fns)\n" );
-			$skippedRedirects = 0; // Number of redirects skipped for that namespace
-			$skippedNoindex = 0; // Number of pages with __NOINDEX__ switch for that NS
+			// Number of redirects skipped for that namespace
+			$skippedRedirects = 0;
+			// Number of pages with __NOINDEX__ switch for that NS
+			$skippedNoindex = 0;
 			foreach ( $res as $row ) {
 				if ( $row->pp_propname === 'noindex' ) {
 					$skippedNoindex++;
@@ -389,7 +391,8 @@ class GenerateSitemap extends Maintenance {
 					$variants = $langConverter->getVariants();
 					foreach ( $variants as $vCode ) {
 						if ( $vCode == $contLang->getCode() ) {
-							continue; // we don't want default variant
+							// we don't want default variant
+							continue;
 						}
 						$entry = $this->fileEntry(
 							$title->getCanonicalURL( '', $vCode ),
@@ -615,7 +618,7 @@ class GenerateSitemap extends Maintenance {
 				'dst' => $path . $fileInfo->getBasename(),
 			];
 		}
-		var_dump($filesToStore);
+		var_dump( $filesToStore );
 
 		$backend->doQuickOperations( $filesToStore );
 	}

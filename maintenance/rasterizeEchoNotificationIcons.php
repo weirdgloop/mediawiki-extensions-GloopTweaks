@@ -15,6 +15,7 @@ require_once "$IP/maintenance/Maintenance.php";
 
 class RasterizeEchoNotificationIcons extends Maintenance {
 	public function execute() {
+		// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix
 		global $IP, $wgSVGConverter;
 		// Force direct use of rsvg as converter.
 		$wgSVGConverter = 'rsvg';
@@ -37,9 +38,14 @@ class RasterizeEchoNotificationIcons extends Maintenance {
 		}
 	}
 
+	/**
+	 * @param string $path
+	 * @return void
+	 */
 	private static function rasterize( $path ) {
 		$handler = new SvgHandler;
-		// This is an improvement over the default rasterization, which generates a 20x20 image, but gets stretched to 30x30 in HTML emails.
+		// This is an improvement over the default rasterization, which generates a 20x20 image,
+		// but gets stretched to 30x30 in HTML emails.
 		$handler->rasterize(
 			$path,
 			"$path.png",

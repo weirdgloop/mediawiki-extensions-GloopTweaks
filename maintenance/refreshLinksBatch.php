@@ -22,8 +22,8 @@
 
 namespace MediaWiki\Extension\GloopTweaks\Maintenance;
 
-use MediaWiki\Maintenance\Maintenance;
 use MediaWiki\Extension\GloopTweaks\RefreshLinksBatchJob;
+use MediaWiki\Maintenance\Maintenance;
 use MediaWiki\MediaWikiServices;
 
 if ( getenv( 'MW_INSTALL_PATH' ) ) {
@@ -57,7 +57,6 @@ class RefreshLinksBatch extends Maintenance {
 			MediaWikiServices::getInstance()->getJobQueueGroup()->push( $job );
 			$this->output( "$batchStart -> $batchEnd\n" );
 		}
-
 	}
 }
 

@@ -4,9 +4,9 @@ namespace MediaWiki\Extension\GloopTweaks\ResourceLoader;
 
 use MediaWiki\Extension\GloopTweaks\GloopTweaksUtils;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Revision\SlotRecord;
 use MediaWiki\ResourceLoader\Context;
 use MediaWiki\ResourceLoader\SiteStylesModule;
+use Wikimedia\Rdbms\IDatabase;
 
 class FixedWidthStyleModule extends SiteStylesModule {
 	/**
@@ -25,7 +25,8 @@ class FixedWidthStyleModule extends SiteStylesModule {
 		);
 
 		if ( !$content ) {
-			return null; // No content found
+			// No content found
+			return null;
 		}
 
 		$handler = $content->getContentHandler();
@@ -34,13 +35,17 @@ class FixedWidthStyleModule extends SiteStylesModule {
 		} elseif ( $handler->isSupportedFormat( CONTENT_FORMAT_JAVASCRIPT ) ) {
 			$format = CONTENT_FORMAT_JAVASCRIPT;
 		} else {
-			return null; // Bad content model
+			// Bad content model
+			return null;
 		}
 
 		return $content->serialize( $format );
 	}
 
-	// Override getDB() to use family main wiki rather than having a per-wiki MediaWiki:Vector-fixedwidth.css.
+	/**
+	 * Override getDB() to use family main wiki rather than having a per-wiki MediaWiki:Vector-fixedwidth.css.
+	 * @return false|IDatabase
+	 */
 	protected function getDB() {
 		global $wgGloopTweaksFamilyCentralDB;
 		$lbFactory = MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
@@ -63,7 +68,10 @@ class FixedWidthStyleModule extends SiteStylesModule {
 		return $pages;
 	}
 
-	// 'site' should be used, but can't as this module needs to load after 'site.styles'.
+	/**
+	 * 'site' should be used, but can't as this module needs to load after 'site.styles'.
+	 * @return string
+	 */
 	public function getGroup() {
 		return 'user';
 	}

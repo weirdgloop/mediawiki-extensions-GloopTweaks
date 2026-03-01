@@ -2,16 +2,21 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use MediaWiki\Actions\RawAction;
+use MediaWiki\Api\ApiBase;
+use MediaWiki\Api\ApiQuery;
 use MediaWiki\Api\Hook\APIAfterExecuteHook;
 use MediaWiki\Cache\Hook\MessageCacheFetchOverridesHook;
 use MediaWiki\Config\Config;
 use MediaWiki\Content\Content;
 use MediaWiki\Content\Hook\ContentAlterParserOutputHook;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\Deferred\CdnCacheUpdate;
 use MediaWiki\Deferred\DeferredUpdates;
-use MediaWiki\Exception\ErrorPageError;
 use MediaWiki\Exception\MWException;
 use MediaWiki\Extension\ContactPage\Hooks\ContactFormHook;
+use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
+use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use MediaWiki\Extension\Scribunto\Hooks\ScribuntoExternalLibrariesHook;
 use MediaWiki\FileRepo\File\File;
 use MediaWiki\Hook\AfterImportPageHook;
@@ -26,21 +31,20 @@ use MediaWiki\Hook\SkinCopyrightFooterMessageHook;
 use MediaWiki\Hook\TestCanonicalRedirectHook;
 use MediaWiki\Hook\TitleSquidURLsHook;
 use MediaWiki\Html\Html;
-use MediaWiki\Api\ApiBase;
-use MediaWiki\Api\ApiQuery;
-use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
-use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\Linker\LinkTarget;
 use MediaWiki\Logging\ManualLogEntry;
 use MediaWiki\Mail\MailAddress;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Linker\LinkTarget;
 use MediaWiki\Message\Message;
+use MediaWiki\Output\OutputPage;
+use MediaWiki\Page\Article;
 use MediaWiki\Page\Hook\ArticleViewHeaderHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
 use MediaWiki\Page\Hook\PageUndeleteCompleteHook;
 use MediaWiki\Page\ProperPageIdentity;
+use MediaWiki\Page\WikiPage;
 use MediaWiki\Parser\ParserOutput;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Permissions\Hook\GetUserPermissionsErrorsHook;
@@ -52,23 +56,18 @@ use MediaWiki\ResourceLoader\Hook\ResourceLoaderRegisterModulesHook;
 use MediaWiki\ResourceLoader\ResourceLoader;
 use MediaWiki\ResourceLoader\WikiModule;
 use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Specials\SpecialUpload;
+use MediaWiki\Skin\Skin;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\Title\ForeignTitle;
+use MediaWiki\Title\Title;
 use MediaWiki\User\User;
 use MediaWiki\User\UserIdentity;
-use MediaWiki\Page\Article;
-use MediaWiki\Output\OutputPage;
-use MediaWiki\Actions\RawAction;
-use MediaWiki\Context\RequestContext;
-use MediaWiki\Skin\Skin;
-use MediaWiki\Title\Title;
 use MediaWiki\WikiMap\WikiMap;
-use MediaWiki\Page\WikiPage;
 use MessageSpecifier;
 use Wikimedia\HtmlArmor\HtmlArmor;
-use Wikimedia\Minify\CSSMin;
+
+// phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 
 /**
  * Hooks for various customisations used on Weird Gloop wikis.
@@ -99,10 +98,16 @@ class GloopTweaksHooks implements
 	ContentAlterParserOutputHook,
 	ResourceLoaderBeforeResponseHook
 {
+	/** @var Config */
 	private Config $config;
 
+	/** @var LinkRenderer */
 	private LinkRenderer $linkRenderer;
 
+	/**
+	 * @param Config $config
+	 * @param LinkRenderer $linkRenderer
+	 */
 	public function __construct( Config $config, LinkRenderer $linkRenderer ) {
 		$this->config = $config;
 		$this->linkRenderer = $linkRenderer;
@@ -444,8 +449,20 @@ class GloopTweaksHooks implements
 
 		// Inject Google Tag Manager.
 		if ( $gtmId ) {
-			$out->addInlineScript( "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','$gtmId')" );
-			$out->prependHTML( '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $gtmId . '" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>' );
+			$out->addInlineScript(
+				<<<EOD
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','$gtmId')
+EOD
+			);
+			$out->prependHTML(
+				<<<EOD
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $gtmId . '" height="0" width="0"
+ style="display:none;visibility:hidden"></iframe></noscript>
+EOD
+			);
 		}
 
 		$this->handleTheming( $out );
@@ -565,10 +582,7 @@ class GloopTweaksHooks implements
 	}
 
 	/**
-	 * @param Title $title
-	 * @param string &$url
-	 * @param string $query
-	 * @return void
+	 * @inheritDoc
 	 */
 	public function onGetLocalURL__Internal( $title, &$url, $query ): void {
 		$script = $this->config->get( MainConfigNames::Script );

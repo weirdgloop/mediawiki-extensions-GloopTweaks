@@ -1,11 +1,14 @@
 <?php
 // This file is intended to be symlinked into $IP.
+// phpcs:disable MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 
 /** This code is derived from the following sources:
  *  - https://github.com/wikimedia/mediawiki/blob/1.41.1/includes/specials/SpecialRunJobs.php for its validation.
- *  - https://github.com/wikimedia/operations-mediawiki-config/blob/0d9039491711b014c145aa82a1ea5af504e30e8f/rpc/RunSingleJob.php for a current take on this approach.
- *  - https://github.com/wikimedia/operations-mediawiki-config/blob/ca3b94f2d9bc755d92839e5e69072615ea9008df/rpc/RunJobs.php for Wikimedia's last redis-based jobrunner approach.
- * */
+ *  - https://github.com/wikimedia/operations-mediawiki-config/blob/0d9039491711b014c145aa82a1ea5af504e30e8f/rpc/RunSingleJob.php
+ * 		for a current take on this approach.
+ *  - https://github.com/wikimedia/operations-mediawiki-config/blob/ca3b94f2d9bc755d92839e5e69072615ea9008df/rpc/RunJobs.php
+ * 		for Wikimedia's last redis-based jobrunner approach.
+ */
 
 // Validate request method
 if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
@@ -32,8 +35,8 @@ require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
 
 // Verify request signature
 $signedNames = [ 'db', 'maxjobs', 'maxmem', 'maxtime', 'sigexpiry', 'type' ];
-$signedParams = array_filter( $_GET, function( $name ) use ( $signedNames ) {
-    return in_array( $name, $signedNames );
+$signedParams = array_filter( $_GET, static function ( $name ) use ( $signedNames ) {
+	return in_array( $name, $signedNames );
 }, ARRAY_FILTER_USE_KEY );
 ksort( $signedParams );
 $expectedSignature = hash_hmac( 'sha1', http_build_query( $signedParams ), $wgSecretKey );

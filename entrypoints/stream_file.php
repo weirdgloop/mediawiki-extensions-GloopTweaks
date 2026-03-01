@@ -6,14 +6,20 @@ use MediaWiki\MediaWikiServices;
 define( 'MW_NO_SESSION', 1 );
 define( 'MW_ENTRY_POINT', 'stream_file' );
 
-require dirname($_SERVER['SCRIPT_FILENAME']) . '/includes/WebStart.php';
+require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
 
+// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 wfStreamFileMain( $_GET );
 
+/**
+ * @param array $params
+ * @return void
+ */
 function wfStreamFileMain( array $params ) {
 	global $wgDBname;
 
-	// Only allow a limited set of files as this is intended to deal with non-page requests fetching "well-known" file URLs.
+	// Only allow a limited set of files as this is intended to deal with non-page requests
+	// fetching "well-known" file URLs.
 	$allowedFiles = [
 		'Apple-touch-icon.png',
 		'Favicon.ico',
@@ -40,8 +46,8 @@ function wfStreamFileMain( array $params ) {
 		$repo->streamFileWithStatus( $file->getPath(), $headers );
 	}
 	// Shorter 404.
-	else {
+ else {
 		header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=3600, revalidate-while-stale=300' );
 		HttpStatus::header( 404 );
-	}
+ }
 }

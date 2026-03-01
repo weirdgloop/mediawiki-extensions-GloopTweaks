@@ -18,7 +18,10 @@ class ThemeStylesModule extends WikiModule {
 		$this->theme = $options['theme'];
 	}
 
-	// 'site' should be used, but can't as this module needs to load after 'site.styles'.
+	/**
+	 * 'site' should be used, but can't as this module needs to load after 'site.styles'.
+	 * @return string
+	 */
 	public function getGroup() {
 		return 'user';
 	}
