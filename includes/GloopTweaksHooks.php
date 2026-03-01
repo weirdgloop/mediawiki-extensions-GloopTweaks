@@ -370,36 +370,11 @@ class GloopTweaksHooks implements
 	}
 
 	/**
-	 * Implement theming and add structured data for the Google Sitelinks search box.
-	 *
 	 * @param OutputPage $out
-	 * @param Skin $skin
+	 * @note use Extension:GloopThemes for newer wikis
 	 * @return void
 	 */
-	public function onBeforePageDisplay( $out, $skin ): void {
-		$csp = $this->config->get( 'GloopTweaksCSP' );
-		$cspAnon = $this->config->get( 'GloopTweaksCSPAnons' );
-
-		// Add a CSP header. The CSP for normal users can be different to anons.
-		if ( $csp !== '' ) {
-			$user = RequestContext::getMain()->getUser();
-			$response = $out->getRequest()->response();
-
-			if ( $cspAnon === '' || ( $user && !$user->isAnon() ) ) {
-				$response->header( 'Content-Security-Policy: ' . $csp );
-			} else {
-				$response->header( 'Content-Security-Policy: ' . $cspAnon );
-			}
-		}
-
-		$gtmId = $this->config->get( 'GloopTweaksAnalyticsID' );
-
-		// Inject Google Tag Manager.
-		if ( $gtmId ) {
-			$out->addInlineScript( "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','$gtmId')" );
-			$out->prependHTML( '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $gtmId . '" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>' );
-		}
-
+	private function handleTheming( $out ) {
 		/*
 		 * Server-side logic to implement theming and fixed width styling customisations.
 		 * However, for most requests, this is instead done by our Cloudflare worker to avoid cache fragmentation.
@@ -440,6 +415,40 @@ class GloopTweaksHooks implements
 				$out->addModuleStyles( [ 'wg.fixedwidth' ] );
 			}
 		}
+	}
+
+	/**
+	 * Implement theming and add structured data for the Google Sitelinks search box.
+	 *
+	 * @param OutputPage $out
+	 * @param Skin $skin
+	 * @return void
+	 */
+	public function onBeforePageDisplay( $out, $skin ): void {
+		$csp = $this->config->get( 'GloopTweaksCSP' );
+		$cspAnon = $this->config->get( 'GloopTweaksCSPAnons' );
+
+		// Add a CSP header. The CSP for normal users can be different to anons.
+		if ( $csp !== '' ) {
+			$user = RequestContext::getMain()->getUser();
+			$response = $out->getRequest()->response();
+
+			if ( $cspAnon === '' || ( $user && !$user->isAnon() ) ) {
+				$response->header( 'Content-Security-Policy: ' . $csp );
+			} else {
+				$response->header( 'Content-Security-Policy: ' . $cspAnon );
+			}
+		}
+
+		$gtmId = $this->config->get( 'GloopTweaksAnalyticsID' );
+
+		// Inject Google Tag Manager.
+		if ( $gtmId ) {
+			$out->addInlineScript( "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','$gtmId')" );
+			$out->prependHTML( '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $gtmId . '" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>' );
+		}
+
+		$this->handleTheming( $out );
 
 		$title = $out->getTitle();
 		$siteName = $this->config->get( MainConfigNames::Sitename );
@@ -629,19 +638,21 @@ class GloopTweaksHooks implements
 	 * @return void
 	 */
 	public function onResourceLoaderRegisterModules( ResourceLoader $rl ): void {
-		// Register resource modules for themes.
-		foreach ( $this->config->get( 'GloopTweaksThemes' ) as $theme ) {
-			$rl->register( "wgl.theme.$theme", [
-				'class' => ThemeStylesModule::class,
-				'theme' => $theme,
-			] );
-
-			// Legacy dark mode
-			if ( $theme === 'dark' ) {
-				$rl->register( 'wg.darkmode', [
+		if ( $this->config->get( 'GloopTweaksEnableTheming' ) ) {
+			// Register resource modules for themes.
+			foreach ( $this->config->get( 'GloopTweaksThemes' ) as $theme ) {
+				$rl->register( "wgl.theme.$theme", [
 					'class' => ThemeStylesModule::class,
 					'theme' => $theme,
 				] );
+
+				// Legacy dark mode
+				if ( $theme === 'dark' ) {
+					$rl->register( 'wg.darkmode', [
+						'class' => ThemeStylesModule::class,
+						'theme' => $theme,
+					] );
+				}
 			}
 		}
 	}
