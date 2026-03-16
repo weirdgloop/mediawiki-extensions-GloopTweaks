@@ -2,6 +2,7 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use Exception;
 use MediaWiki\Actions\RawAction;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
@@ -25,6 +26,7 @@ use MediaWiki\Hook\GetLocalURL__InternalHook;
 use MediaWiki\Hook\LocalFilePurgeThumbnailsHook;
 use MediaWiki\Hook\OpenSearchUrlsHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\ParserBeforeInternalParseHook;
 use MediaWiki\Hook\RawPageViewBeforeOutputHook;
 use MediaWiki\Hook\SkinAddFooterLinksHook;
 use MediaWiki\Hook\SkinCopyrightFooterMessageHook;
@@ -33,6 +35,7 @@ use MediaWiki\Hook\TitleSquidURLsHook;
 use MediaWiki\Html\Html;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\Logging\ManualLogEntry;
 use MediaWiki\Mail\MailAddress;
 use MediaWiki\MainConfigNames;
@@ -43,6 +46,8 @@ use MediaWiki\Page\Article;
 use MediaWiki\Page\Hook\ArticleViewHeaderHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
 use MediaWiki\Page\Hook\PageUndeleteCompleteHook;
+use MediaWiki\Page\LinkBatchFactory;
+use MediaWiki\Page\LinkCache;
 use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Page\WikiPage;
 use MediaWiki\Parser\ParserOutput;
@@ -66,6 +71,7 @@ use MediaWiki\User\UserIdentity;
 use MediaWiki\WikiMap\WikiMap;
 use MessageSpecifier;
 use Wikimedia\HtmlArmor\HtmlArmor;
+use Wikimedia\Rdbms\IConnectionProvider;
 
 // phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 
@@ -96,21 +102,17 @@ class GloopTweaksHooks implements
 	RawPageViewBeforeOutputHook,
 	APIAfterExecuteHook,
 	ContentAlterParserOutputHook,
-	ResourceLoaderBeforeResponseHook
+	ResourceLoaderBeforeResponseHook,
+	ParserBeforeInternalParseHook
 {
-	/** @var Config */
-	private Config $config;
 
-	/** @var LinkRenderer */
-	private LinkRenderer $linkRenderer;
-
-	/**
-	 * @param Config $config
-	 * @param LinkRenderer $linkRenderer
-	 */
-	public function __construct( Config $config, LinkRenderer $linkRenderer ) {
-		$this->config = $config;
-		$this->linkRenderer = $linkRenderer;
+	public function __construct(
+		private readonly Config $config,
+		private readonly IConnectionProvider $connectionProvider,
+		private readonly LinkBatchFactory $linkBatchFactory,
+		private readonly LinkCache $linkCache,
+		private readonly LinkRenderer $linkRenderer,
+	) {
 	}
 
 	/**
@@ -807,6 +809,43 @@ EOD
 
 		if ( count( $cacheTags ) > 0 ) {
 			$extraHeaders[] = 'Cache-Tag: ' . implode( ', ', $cacheTags );
+		}
+	}
+
+	/** @inheritDoc */
+	public function onParserBeforeInternalParse( $parser, &$text, $stripState ) {
+		$pagelinksCachePrewarmReasons = $this->config->get( 'GloopTweaksPagelinksCachePrewarmReasons' );
+
+		try {
+			$parserOptions = $parser->getOptions();
+			if (
+				$parserOptions !== null &&
+				in_array( $parserOptions->getRenderReason(), $pagelinksCachePrewarmReasons ) &&
+				$parser->getTitle()->canExist()
+			) {
+				$id = $parser->getTitle()->getId();
+				if ( $id !== 0 ) {
+					$res = $this->connectionProvider->getReplicaDatabase()
+						->newSelectQueryBuilder()
+						->select( LinkCache::getSelectFields() )
+						->from( 'pagelinks' )
+						->where( [ 'pl_from' => $parser->getTitle()->getId() ] )
+						->join( 'linktarget', null, 'lt_id = pl_target_id' )
+						->join( 'page', null, [
+							'page_title = lt_title',
+							'page_namespace = lt_namespace',
+						] )
+						->caller( __METHOD__ )
+						->fetchResultSet();
+
+					$batch = $this->linkBatchFactory->newLinkBatch();
+					$batch->addResultToCache( $this->linkCache, $res );
+				}
+			}
+		} catch ( Exception $exception ) {
+			// Catch and log any exceptions. The batch query is optional, and it should not cause an error if something
+			// doesn't work.
+			LoggerFactory::getInstance( 'GloopTweaks' )->error( $exception );
 		}
 	}
 }
