@@ -58,6 +58,9 @@
 			"class": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks",
 			"services": [
 				"MainConfig",
+				"ConnectionProvider",
+				"LinkBatchFactory",
+				"LinkCache",
 				"LinkRenderer"
 			]
 		}
@@ -75,6 +78,7 @@
 		"PageMoveComplete": "main",
 		"PageSaveComplete": "main",
 		"PageUndeleteComplete": "main",
+		"ParserBeforeInternalParse": "main",
 		"ResourceLoaderRegisterModules": "main",
 		"ScribuntoExternalLibraries": "main",
 		"SkinAddFooterLinks": "main",
@@ -148,6 +152,20 @@
 		},
 		"NoRobots": {
 			"value": false
+		},
+		"PagelinksCachePrewarmReasons": {
+			"value": [
+				"CategoryMembershipChangeJob",
+				"diff-page",
+				"page-edit",
+				"page-preview",
+				"page_view",
+				"page_view_oldid",
+				"ParserOutputForIndexing",
+				"RefreshLinksJob",
+				"refresh-links-maintenance"
+			],
+			"merge_strategy": "provide_default"
 		},
 		"ProtectSiteInterface": {
 			"value": true
