@@ -106,6 +106,8 @@ class GloopTweaksHooks implements
 	ParserBeforeInternalParseHook
 {
 
+	private bool $linkCachePrewarmed = false;
+
 	public function __construct(
 		private readonly Config $config,
 		private readonly IConnectionProvider $connectionProvider,
@@ -814,6 +816,10 @@ EOD
 
 	/** @inheritDoc */
 	public function onParserBeforeInternalParse( $parser, &$text, $stripState ) {
+		if ( $this->linkCachePrewarmed ) {
+			return;
+		}
+
 		$pagelinksCachePrewarmReasons = $this->config->get( 'GloopTweaksPagelinksCachePrewarmReasons' );
 
 		try {
@@ -840,6 +846,7 @@ EOD
 
 					$batch = $this->linkBatchFactory->newLinkBatch();
 					$batch->addResultToCache( $this->linkCache, $res );
+					$this->linkCachePrewarmed = true;
 				}
 			}
 		} catch ( Exception $exception ) {
