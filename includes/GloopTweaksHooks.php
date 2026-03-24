@@ -863,6 +863,7 @@ EOD
 						->fetchFieldValues();
 
 					if ( $fileNames ) {
+						$fileNames = array_map( static fn ( $f ) => Title::makeTitle( NS_FILE, $f ), $fileNames );
 						$this->repoGroup->findFiles( $fileNames );
 					}
 
