@@ -61,7 +61,8 @@
 				"ConnectionProvider",
 				"LinkBatchFactory",
 				"LinkCache",
-				"LinkRenderer"
+				"LinkRenderer",
+				"RepoGroup"
 			]
 		}
 	},

@@ -21,6 +21,7 @@ use MediaWiki\Extension\GloopTweaks\ResourceLoader\ThemeStylesModule;
 use MediaWiki\Extension\GloopTweaks\StopForumSpam\StopForumSpam;
 use MediaWiki\Extension\Scribunto\Hooks\ScribuntoExternalLibrariesHook;
 use MediaWiki\FileRepo\File\File;
+use MediaWiki\FileRepo\RepoGroup;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\GetLocalURL__InternalHook;
@@ -116,6 +117,7 @@ class GloopTweaksHooks implements
 		private readonly LinkBatchFactory $linkBatchFactory,
 		private readonly LinkCache $linkCache,
 		private readonly LinkRenderer $linkRenderer,
+		private readonly RepoGroup $repoGroup,
 	) {
 	}
 
@@ -848,6 +850,22 @@ EOD
 
 					$batch = $this->linkBatchFactory->newLinkBatch();
 					$batch->addResultToCache( $this->linkCache, $res );
+
+					$fileNames = $this->connectionProvider->getReplicaDatabase()
+						->newSelectQueryBuilder()
+						->select( 'il_to' )
+						->from( 'imagelinks' )
+						->where( [
+							'il_from' => $id,
+							'il_from_namespace' => $parser->getTitle()->getNamespace()
+						] )
+						->caller( __METHOD__ )
+						->fetchFieldValues();
+
+					if ( $fileNames ) {
+						$this->repoGroup->findFiles( $fileNames );
+					}
+
 					$this->linkCachePrewarmed = true;
 				}
 			}
