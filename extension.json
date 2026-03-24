@@ -67,6 +67,7 @@
 	},
 	"Hooks": {
 		"AfterImportPage": "main",
+		"ApiMakeParserOptions": "main",
 		"ArticleViewHeader": "main",
 		"BeforePageDisplay": "main",
 		"ContactForm": "main",

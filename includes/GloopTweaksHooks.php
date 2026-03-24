@@ -7,6 +7,7 @@ use MediaWiki\Actions\RawAction;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
 use MediaWiki\Api\Hook\APIAfterExecuteHook;
+use MediaWiki\Api\Hook\ApiMakeParserOptionsHook;
 use MediaWiki\Cache\Hook\MessageCacheFetchOverridesHook;
 use MediaWiki\Config\Config;
 use MediaWiki\Content\Content;
@@ -103,7 +104,8 @@ class GloopTweaksHooks implements
 	APIAfterExecuteHook,
 	ContentAlterParserOutputHook,
 	ResourceLoaderBeforeResponseHook,
-	ParserBeforeInternalParseHook
+	ParserBeforeInternalParseHook,
+	ApiMakeParserOptionsHook
 {
 
 	private bool $linkCachePrewarmed = false;
@@ -853,6 +855,12 @@ EOD
 			// Catch and log any exceptions. The batch query is optional, and it should not cause an error if something
 			// doesn't work.
 			LoggerFactory::getInstance( 'GloopTweaks' )->error( $exception );
+		}
+	}
+
+	public function onApiMakeParserOptions( $options, $title, $params, $module, &$reset, &$suppressCache ) {
+		if ( isset( $_GET['wglBypassParserCache'] ) ) {
+			$suppressCache = true;
 		}
 	}
 }
