@@ -2,6 +2,7 @@
 // This file is intended to be symlinked into $IP.
 
 use MediaWiki\DAO\WikiAwareEntity;
+use MediaWiki\Extension\GloopTweaks\GloopTweaksUtils;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 

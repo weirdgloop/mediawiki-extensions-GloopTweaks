@@ -224,7 +224,7 @@ class GloopTweaksHooks implements
 				);
 
 				// Purge the cache tag in every CF zone.
-				MediaWikiServices::getInstance()->getJobQueueGroup()->push( new NetworkCentralPurgeJob( [ 'GloopTweaks:robots.txt' ], 'tag' ) );
+				MediaWikiServices::getInstance()->getJobQueueGroup()->push( new NetworkCentralPurgeJob( [ 'entries' => [ 'GloopTweaks:robots.txt' ], 'method' => 'tag' ] ) );
 			} elseif ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
 				// When [[MediaWiki:Weirdgloop-contact-filter]] is edited, clear the 'contact-filter-regexes' global cache key.
 				$cache = GloopTweaksUtils::getNetworkCentralCache();

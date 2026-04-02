@@ -12,11 +12,13 @@ class NetworkCentralPurgeJob extends Job implements GenericParameterJob {
 	}
 
 	public function run() {
+        global $wgGloopTweaksCFZones;
+
         $entries = $this->params[ 'entries' ];
 		$method = $this->params[ 'method' ];
         $key = ( $method === 'file' ) ? 'url' : $method;
         $purger = new GloopEventRelayer([]);
-        $zones = array_values( $this->config->get( 'GloopTweaksCFZones' ) );
+        $zones = array_values( $wgGloopTweaksCFZones );
 
         foreach ( $zones as $zone ) {
 			$status = $purger->purgeByMethod( [ $key => $entries ], $method, $zone );

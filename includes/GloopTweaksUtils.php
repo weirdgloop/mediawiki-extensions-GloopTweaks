@@ -15,7 +15,7 @@ class GloopTweaksUtils {
 	public static function currentWikiIsNetworkCentralWiki() {
 		global $wgDBname, $wgGloopTweaksNetworkCentralDB;
 
-		return $wgGloopTweaksNetworkCentralDB && $wgDBname === $networkCentralDB;
+		return $wgGloopTweaksNetworkCentralDB && $wgDBname === $wgGloopTweaksNetworkCentralDB;
 	}
 	/**
 	 * @return BagOStuff
