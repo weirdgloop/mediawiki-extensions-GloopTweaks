@@ -88,18 +88,23 @@ class GloopEventRelayer extends EventRelayer {
 	 * @param array $events List of event data maps
 	 * @param string $method Cloudflare purge method
 	 * @param string $zone Cloudflare zone
+	 * @param bool $direct Can $events be used as $entries without processing.
 	 * @return bool Success
 	 */
-	public function purgeByMethod( array $events, string $method, string $zone ) {
-		// Extract the entries to purge from the 'cdn-{$method}-purges' events, but
-		// 'file' events are keyed 'url' for compatibility with upstream mediawiki.
-		$key = ( $method === 'file' ) ? 'url' : $method;
-		$entries = [];
-		foreach ( $events as $event ) {
-			$entries[] = $event[$key];
+	public function purgeByMethod( array $events, string $method, string $zone, bool $direct = false ) {
+		if ( $direct ) {
+			$entries = $events;
+		} else {
+			// Extract the entries to purge from the 'cdn-{$method}-purges' events, but
+			// 'file' events are keyed 'url' for compatibility with upstream mediawiki.
+			$key = ( $method === 'file' ) ? 'url' : $method;
+			$entries = [];
+			foreach ( $events as $event ) {
+				$entries[] = $event[$key];
+			}
 		}
 
-		wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $entries ) );
+		wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $entries ), 'all', [ 'method' => $method, 'zone' => $zone ] );
 
 		// Legacy support for falling back to purging via curl for 'file' events if cfpurger isn't configured.
 		if ( !$this->redisServer && $method === 'file' ) {
@@ -111,7 +116,7 @@ class GloopEventRelayer extends EventRelayer {
 		// Obtain redis connection.
 		$conn = $this->redisPool->getConnection( $this->redisServer );
 		if ( !$conn ) {
-			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis connection failed.' );
+			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis connection failed.', 'all', [ 'method' => $method, 'zone' => $zone ] );
 			return false;
 		}
 
@@ -156,7 +161,7 @@ LUA;
 				2
 			);
 		} catch ( RedisException $e ) {
-			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis exception: ' . $e->getMessage() );
+			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis exception: ' . $e->getMessage(), 'all', [ 'method' => $method, 'zone' => $zone ] );
 			return false;
 		}
 
