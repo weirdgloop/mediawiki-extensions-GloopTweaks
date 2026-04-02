@@ -211,8 +211,18 @@ class GloopTweaksHooks implements
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 		}
 
-		// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the contact-filter-regexes global cache key.
-		if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
+		if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Robots.txt' ) {
+			// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the 'robots' global cache key.
+			$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+
+			$cache->delete(
+				$cache->makeGlobalKey(
+					'GloopTweaks',
+					'robots'
+				)
+			);
+		} elseif ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
+			// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the 'contact-filter-regexes' global cache key.
 			$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 			$cache->delete(
