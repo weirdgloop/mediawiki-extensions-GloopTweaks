@@ -13,42 +13,21 @@ use Wikimedia\AtEase\AtEase;
 
 class GloopTweaksUtils {
 	/**
-	 * @param MediaWikiServices $services
-	 * @param string $pageName
-	 * @param string $wiki
-	 * @return Content|null
-	 */
-	public static function getContentFromWiki( MediaWikiServices $services, string $pageName, string $wiki ) {
-		$targetWikiIsCurrentWiki = $wiki === $services->getMainConfig()->get( MainConfigNames::DBname );
-		$page = $services->getPageStoreFactory()
-			->getPageStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
-			->getPageByText( $pageName );
-		$rev = $services->getRevisionStoreFactory()
-			->getRevisionStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
-			->getRevisionByTitle( $page );
-		$content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
-
-		return $content;
-	}
-
-	/**
 	 * Prepare the Special:Contact filter regexes.
 	 * @return array
 	 */
 	private static function getContactFilter() {
-		global $wgGloopTweaksNetworkCentralDB;
+		global $wgGloopTweaksNetworkCentralContactFilterUrl;
 
-		$filterContent = self::getContentFromWiki( MediaWikiServices::getInstance(),
-			'MediaWiki:Weirdgloop-contact-filter', $wgGloopTweaksNetworkCentralDB );
-		if ( !( $filterContent instanceof TextContent ) ) {
-			$filterText = '';
-		} else {
-			$filterText = $filterContent->getText();
+		$text = '';
+		if ( $wgGloopTweaksNetworkCentralContactFilterUrl ) {
+			$text = MediaWikiServices::getInstance()->getHttpRequestFactory()
+				->get( $wgGloopTweaksNetworkCentralContactFilterUrl, [], __METHOD__ ) ?? '';
 		}
 
 		$regexes = [];
 
-		$lines = preg_split( "/\r?\n/", $filterText );
+		$lines = preg_split( "/\r?\n/", $text );
 		foreach ( $lines as $line ) {
 			// Strip comments and whitespace.
 			$line = preg_replace( '/#.*$/', '', $line );
@@ -94,8 +73,8 @@ class GloopTweaksUtils {
 				'GloopTweaks',
 				'contact-filter-regexes'
 			),
-			// 5 minute cache time as this isn't a high frequency check.
-			300,
+			// 1 hour cache time.
+			3600,
 			function () {
 				return self::getContactFilter();
 			}

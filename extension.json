@@ -111,6 +111,14 @@
 			"value": false,
 			"description": "The database name of the Weird Gloop central wiki, which is metawiki, but can be changed."
 		},
+		"NetworkCentralContactFilterUrl": {
+			"value": false,
+			"description": "The action=raw URL to MediaWiki:Weirdgloop-contact-filter on the Weird Gloop central wiki."
+		},
+		"NetworkCentralRobotsTxtUrl": {
+			"value": false,
+			"description": "The action=raw URL to MediaWiki:Robots.txt on the Weird Gloop central wiki."
+		},
 		"CacheTagDebug": {
 			"value": false
 		},

@@ -13,7 +13,7 @@ require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
 wfRobotsMain();
 
 function wfRobotsMain() {
-	global $wgGloopTweaksNetworkCentralDB, $wgDBname, $wgCanonicalServer, $wgScriptPath, $wgArticlePath,
+	global $wgDBname, $wgCanonicalServer, $wgScriptPath, $wgArticlePath,
 		   $wgGloopTweaksNoRobots, $wgNamespaceRobotPolicies;
 
 	if ( $wgGloopTweaksNoRobots ) {
@@ -24,22 +24,24 @@ function wfRobotsMain() {
 	}
 
 	$services = MediaWikiServices::getInstance();
-
-	$centralWikiIsCurrentWiki = $wgGloopTweaksNetworkCentralDB === $wgDBname;
-	$page = $services->getPageStoreFactory()
-		->getPageStore( $centralWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wgGloopTweaksNetworkCentralDB )
-		->getPageByText( 'MediaWiki:Robots.txt' );
-	$rev = $services->getRevisionStoreFactory()
-		->getRevisionStore( $centralWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wgGloopTweaksNetworkCentralDB )
-		->getRevisionByTitle( $page );
-	$content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
-	$lastModified = $rev ? $rev->getTimestamp() : null;
-	$text = ( $content instanceof TextContent ) ? $content->getText() : '';
-
-	if ( $rev ) {
-		$wiki = $wgGloopTweaksNetworkCentralDB ?? $wgDBname;
-		header( "Cache-Tag: $wiki:page:{$rev->getPageId($wiki)}" );
-	}
+	$cache = $services->getMainWANObjectCache();
+	$regexes = $cache->getWithSetCallback(
+		$cache->makeGlobalKey(
+			'GloopTweaks',
+			'robots'
+		),
+		// 1 hour cache time.
+		3600,
+		function () {
+			global $wgGloopTweaksNetworkCentralRobotsTxtUrl;
+			$text = '';
+			if ( $wgGloopTweaksNetworkCentralRobotsTxtUrl ) {
+				$text = MediaWikiServices::getInstance()->getHttpRequestFactory()
+					->get( $wgGloopTweaksNetworkCentralRobotsTxtUrl, [], __METHOD__ ) ?? '';
+			}
+			return $text;
+		}
+	);
 
 	// Replace template strings on imported text
 	$text = str_replace(
@@ -89,10 +91,6 @@ function wfRobotsMain() {
 
 	header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=3600, revalidate-while-stale=300' );
 	header( 'Content-Type: text/plain; charset=utf-8' );
-
-	if ( $lastModified ) {
-		header( 'Last-Modified: ' . wfTimestamp( TS_RFC2822, $lastModified ) );
-	}
 
 	$sitemap = "Sitemap: $wgCanonicalServer$wgScriptPath/images/sitemaps/index.xml";
 	if ( $text ) {
