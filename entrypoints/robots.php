@@ -25,7 +25,7 @@ function wfRobotsMain() {
 
 	$services = MediaWikiServices::getInstance();
 	$cache = $services->getMainWANObjectCache();
-	$regexes = $cache->getWithSetCallback(
+	$text = $cache->getWithSetCallback(
 		$cache->makeGlobalKey(
 			'GloopTweaks',
 			'robots'
