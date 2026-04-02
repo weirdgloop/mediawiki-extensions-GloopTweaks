@@ -93,6 +93,7 @@
 		"ResourceLoaderBeforeResponse": "main"
 	},
 	"JobClasses": {
+		"networkCentralPurgeJob": "MediaWiki\\Extension\\GloopTweaks\\NetworkCentralPurgeJob",
 		"refreshLinksBatch": "MediaWiki\\Extension\\GloopTweaks\\RefreshLinksBatchJob"
 	},
 	"config_prefix": "wgGloopTweaks",
@@ -137,6 +138,9 @@
 		},
 		"CFZone": {
 			"value": ""
+		},
+		"CFZones": {
+			"value": []
 		},
 		"CSP": {
 			"value": ""

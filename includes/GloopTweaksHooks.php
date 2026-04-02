@@ -211,8 +211,7 @@ class GloopTweaksHooks implements
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 		}
 
-		$networkCentralDB = $this->config->get( 'GloopTweaksNetworkCentralDB' );
-		if ( $networkCentralDB && $this->config->get( MainConfigNames::DBname ) === $networkCentralDB ) {
+		if ( GloopTweaksUtils::currentWikiIsNetworkCentralWiki() ) {
 			if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Robots.txt' ) {
 				// When [[MediaWiki:Robots.txt]] is edited, clear the 'robots' global cache key.
 				$cache = GloopTweaksUtils::getNetworkCentralCache();
@@ -223,6 +222,9 @@ class GloopTweaksHooks implements
 						'robots'
 					)
 				);
+
+				// Purge the cache tag in every CF zone.
+				MediaWikiServices::getInstance()->getJobQueueGroup()->push( new NetworkCentralPurgeJob( [ 'GloopTweaks:robots.txt' ], 'tag' ) );
 			} elseif ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
 				// When [[MediaWiki:Weirdgloop-contact-filter]] is edited, clear the 'contact-filter-regexes' global cache key.
 				$cache = GloopTweaksUtils::getNetworkCentralCache();
@@ -638,20 +640,12 @@ EOD
 	 * @return void
 	 */
 	public function onTitleSquidURLs( $title, &$urls ): void {
-		$networkCentralDb = $this->config->get( 'GloopTweaksNetworkCentralDB' );
 		$canonicalServer = $this->config->get( MainConfigNames::CanonicalServer );
 
 		$dbkey = $title->getPrefixedDBKey();
 		// MediaWiki:Robots.txt on metawiki is global.
-		if ( $dbkey === 'MediaWiki:Robots.txt' ) {
-			if ( $networkCentralDb && $this->config->get( MainConfigNames::DBname ) === $networkCentralDb ) {
-				// Purge each wiki's /robots.txt route.
-				foreach ( WikiMap::getCanonicalServerInfoForAllWikis() as $serverInfo ) {
-					$urls[] = $serverInfo['url'] . '/robots.txt';
-				}
-			} else {
-				$urls[] = $canonicalServer . '/robots.txt';
-			}
+		if ( $dbkey === 'MediaWiki:Robots.txt' && GloopTweaksUtils::currentWikiIsNetworkCentralWiki() ) {
+			$urls[] = $canonicalServer . '/robots.txt';
 		} elseif ( $dbkey === 'File:Apple-touch-icon.png' ) {
 			$urls[] = $canonicalServer . '/apple-touch-icon.png';
 		} elseif ( $dbkey === 'File:Favicon.ico' ) {

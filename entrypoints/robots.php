@@ -16,6 +16,8 @@ function wfRobotsMain() {
 	global $wgDBname, $wgCanonicalServer, $wgScriptPath, $wgArticlePath,
 		   $wgGloopTweaksNoRobots, $wgNamespaceRobotPolicies;
 
+	header( 'Cache-Tag: GloopTweaks:robots.txt' );
+
 	if ( $wgGloopTweaksNoRobots ) {
 		header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=300, revalidate-while-stale=300' );
 		header( 'Content-Type: text/plain; charset=utf-8' );
