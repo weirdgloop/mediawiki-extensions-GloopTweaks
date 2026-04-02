@@ -23,8 +23,7 @@ function wfRobotsMain() {
 		return;
 	}
 
-	$services = MediaWikiServices::getInstance();
-	$cache = $services->getMainWANObjectCache();
+	$cache = GloopTweaksUtils::getNetworkCentralCache();
 	$text = $cache->getWithSetCallback(
 		$cache->makeGlobalKey(
 			'GloopTweaks',
@@ -51,6 +50,7 @@ function wfRobotsMain() {
 	);
 
 	// Disallow noindexed namespaces in robots.txt as well.
+	$services = MediaWikiServices::getInstance();
 	$contLang = $services->getContentLanguage();
 	$langConverter = $services->getLanguageConverterFactory()->getLanguageConverter( $contLang );
 	$namespaceInfo = $services->getNamespaceInfo();

@@ -13,6 +13,20 @@ use Wikimedia\AtEase\AtEase;
 
 class GloopTweaksUtils {
 	/**
+	 * @return BagOStuff
+	 */
+	public static function getNetworkCentralCache() {
+		global $wgGloopTweaksNetworkCentralCacheType;
+
+		$objectCacheFactory = MediaWikiServices::getInstance()->getObjectCacheFactory();
+		if ( $wgGloopTweaksNetworkCentralCacheType !== null ) {
+			return $objectCacheFactory->getInstance( $wgGloopTweaksNetworkCentralCacheType );
+		} else {
+			return $objectCacheFactory->getLocalClusterInstance();
+		}
+	}
+
+	/**
 	 * Prepare the Special:Contact filter regexes.
 	 * @return array
 	 */
@@ -66,7 +80,7 @@ class GloopTweaksUtils {
 	 * @return bool
 	 */
 	public static function checkContactFilter( $text ) {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = self::getNetworkCentralCache();
 
 		$regexes = $cache->getWithSetCallback(
 			$cache->makeGlobalKey(

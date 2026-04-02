@@ -215,7 +215,7 @@ class GloopTweaksHooks implements
 		if ( $networkCentralDB && $this->config->get( MainConfigNames::DBname ) === $networkCentralDB ) {
 			if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Robots.txt' ) {
 				// When [[MediaWiki:Robots.txt]] is edited, clear the 'robots' global cache key.
-				$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+				$cache = GloopTweaksUtils::getNetworkCentralCache();
 
 				$cache->delete(
 					$cache->makeGlobalKey(
@@ -225,7 +225,7 @@ class GloopTweaksHooks implements
 				);
 			} elseif ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
 				// When [[MediaWiki:Weirdgloop-contact-filter]] is edited, clear the 'contact-filter-regexes' global cache key.
-				$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+				$cache = GloopTweaksUtils::getNetworkCentralCache();
 
 				$cache->delete(
 					$cache->makeGlobalKey(

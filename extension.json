@@ -107,6 +107,10 @@
 			"value": false,
 			"description": "The database name of the central wiki in the family. Typically, this is something like en_rswiki."
 		},
+		"NetworkCentralCacheType": {
+			"value": null,
+			"description": "The cache type to use for network-wide cache entries. Defaults to $wgMainWANCache."
+		},
 		"NetworkCentralDB": {
 			"value": false,
 			"description": "The database name of the Weird Gloop central wiki, which is metawiki, but can be changed."
