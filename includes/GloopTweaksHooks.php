@@ -500,7 +500,10 @@ EOD
 					'@context'        => 'http://schema.org',
 					'@type'           => 'WebSite',
 					'name'            => $siteName,
-					'url'             => $this->config->get( MainConfigNames::CanonicalServer ),
+					// If this flag is false, we're probably hosting multiple same-domain same-language wikis and need
+					// them to be treated as separate entities (WG-417).
+					'url'             => $this->config->get( 'GloopTweaksDomainRootIsPrimarySite' ) ?
+						$this->config->get( MainConfigNames::CanonicalServer ) : $title->getFullURL(),
 				];
 				$out->addHeadItem( 'StructuredData',
 					'<script type="application/ld+json">' . json_encode( $structuredData ) . '</script>' );

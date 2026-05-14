@@ -166,6 +166,9 @@
 		"EnableStructuredData": {
 			"value": true
 		},
+		"DomainRootIsPrimarySite": {
+			"value": true
+		},
 		"NoRobots": {
 			"value": false
 		},
