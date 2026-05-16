@@ -16,13 +16,7 @@ class FixedWidthStyleModule extends SiteStylesModule {
 	 * @since 1.32 added the $context parameter
 	 */
 	protected function getContent( $titleText, Context $context ) {
-		global $wgGloopTweaksFamilyCentralDB;
-
-		$content = GloopTweaksUtils::getContentFromWiki(
-			MediaWikiServices::getInstance(),
-			$titleText,
-			$wgGloopTweaksFamilyCentralDB
-		);
+		$content = GloopTweaksUtils::getContentFromFamilyCentralWiki( MediaWikiServices::getInstance(), $titleText );
 
 		if ( !$content ) {
 			// No content found
