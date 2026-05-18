@@ -1,0 +1,20 @@
+{
+	"@metadata": {
+		"authors": [
+			"Prem4826"
+		]
+	},
+	"weirdgloop-contactpage-disclaimer": "ข้อมูลใด ๆ ที่คุณส่งมาที่นี่จะไม่ถูกส่งไปยังผู้ดูแลของวิกิแห่งนี้ แต่จะถูกส่งไปที่ [https://weirdgloop.org Weird Gloop] ซึ่งเป็นบริษัทที่ดูแลเว็บไซต์แห่งนี้ ทั้งนี้ สำหรับการจัดการปัญหาส่วนใหญ่ คุณควรที่จะติดต่อผู้ดูแลวิกิท้องถิ่นแทน",
+	"weirdgloop-contactpage-dmca-affiliation": "ฉันคือ...",
+	"weirdgloop-contactpage-dmca-affiliation-me": "ฉันคือผู้ถือลิขสิทธิ์",
+	"weirdgloop-contactpage-dmca-affiliation-rep": "ฉันคือตัวแทนของผู้ถือลิขสิทธิ์",
+	"weirdgloop-contactpage-dmca-address": "ที่อยู่ไปรษณีย์แบบเต็มของคุณ",
+	"weirdgloop-contactpage-dmca-phone": "หมายเลขโทรศัพท์ของคุณ",
+	"weirdgloop-contactpage-dmca-src": "ลิงก์ไปยังเนื้อหาต้นฉบับที่คุณยืนยันว่า'''เป็นลิขสิทธิ์ของคุณ''' (หนึ่งลิงก์ต่อบรรทัด)",
+	"weirdgloop-contactpage-dmca-material": "ลิงก์ไปยังเนื้อหาที่คุณยืนยันว่ากำลัง'''ละเมิดลิขสิทธิ์ของคุณ''' (หนึ่งลิงก์ต่อบรรทัด)",
+	"weirdgloop-emailmessage-dmca": "ความเห็นเพิ่มเติม (ภาษาอังกฤษ)",
+	"weirdgloop-contactpage-dmca-faith": "ฉันเชื่ออย่างสุจริตใจว่า ผู้ถือลิขสิทธิ์ ตัวแทนของผู้ถือลิขสิทธิ์ หรือกฎหมาย มิได้อนุญาตการใช้เนื้อหาในลักษณะนี้",
+	"weirdgloop-contactpage-dmca-accuracy": "ฉันขอยืนยันว่าข้อมูลในการแจ้งเตือนนี้ถูกต้องทุกประการ และฉันคือผู้ถือลิขสิทธิ์หรือได้รับการมอบอำนาจให้เป็นตัวแทนของผู้ถือลิขสิทธิ์",
+	"weirdgloop-contactpage-dmca-release": "ฉันยอมรับว่า Weird Gloop อาจแบ่งปันบางส่วนหรือทุกส่วนของหนังสือแจ้งให้ลบนี้แก่สาธารณชนและผู้ดูแลชุมชนวิกิที่เกี่ยวข้อง โดยปกปิดข้อมูลอย่างเหมาะสม",
+	"weirdgloop-contactpage-dmca-signature": "ลายเซ็นอิเล็กทรอนิกส์"
+}
