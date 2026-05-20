@@ -36,10 +36,6 @@
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\GloopTweaks\\": "includes/"
 	},
-	"ContentHandlers": {
-		"GeoJSON": "MediaWiki\\Extension\\GloopTweaks\\ContentHandler\\GeoJSON",
-		"interactivemap": "MediaWiki\\Extension\\GloopTweaks\\ContentHandler\\InteractiveMap"
-	},
 	"ResourceModules": {
 		"wg.fixedwidth": {
 			"class": "MediaWiki\\Extension\\GloopTweaks\\ResourceLoader\\FixedWidthStyleModule"
