@@ -44,10 +44,9 @@ function wfStreamFileMain( array $params ) {
 			$headers[] = "Cache-Tag: $wgDBname:page:$pageIdForCache";
 		}
 		$repo->streamFileWithStatus( $file->getPath(), $headers );
-	}
-	// Shorter 404.
- else {
+	} else {
+		// Shorter 404.
 		header( 'Cache-Control: max-age=300, must-revalidate, s-maxage=3600, revalidate-while-stale=300' );
 		HttpStatus::header( 404 );
- }
+	}
 }

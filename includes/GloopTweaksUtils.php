@@ -2,13 +2,8 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
-use MediaWiki\Content\Content;
-use MediaWiki\Content\TextContent;
-use MediaWiki\DAO\WikiAwareEntity;
-use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Request\WebRequest;
-use MediaWiki\Revision\SlotRecord;
 use Wikimedia\AtEase\AtEase;
 
 class GloopTweaksUtils {
@@ -17,6 +12,7 @@ class GloopTweaksUtils {
 
 		return $wgGloopTweaksNetworkCentralDB && $wgDBname === $wgGloopTweaksNetworkCentralDB;
 	}
+
 	/**
 	 * @return BagOStuff
 	 */

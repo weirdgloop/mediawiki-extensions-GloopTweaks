@@ -104,7 +104,12 @@ class GloopEventRelayer extends EventRelayer {
 			}
 		}
 
-		wfDebugLog( 'purges_cf', __METHOD__ . ': ' . implode( ' ', $entries ), 'all', [ 'method' => $method, 'zone' => $zone ] );
+		wfDebugLog(
+			'purges_cf',
+			__METHOD__ . ': ' . implode( ' ', $entries ),
+			'all',
+			[ 'method' => $method, 'zone' => $zone ]
+		);
 
 		// Legacy support for falling back to purging via curl for 'file' events if cfpurger isn't configured.
 		if ( !$this->redisServer && $method === 'file' ) {
@@ -116,7 +121,12 @@ class GloopEventRelayer extends EventRelayer {
 		// Obtain redis connection.
 		$conn = $this->redisPool->getConnection( $this->redisServer );
 		if ( !$conn ) {
-			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis connection failed.', 'all', [ 'method' => $method, 'zone' => $zone ] );
+			wfDebugLog(
+				'GloopEventRelayer',
+				__METHOD__ . ': Redis connection failed.',
+				'all',
+				[ 'method' => $method, 'zone' => $zone ]
+			);
 			return false;
 		}
 
@@ -161,7 +171,12 @@ LUA;
 				2
 			);
 		} catch ( RedisException $e ) {
-			wfDebugLog( 'GloopEventRelayer', __METHOD__ . ': Redis exception: ' . $e->getMessage(), 'all', [ 'method' => $method, 'zone' => $zone ] );
+			wfDebugLog(
+				'GloopEventRelayer',
+				__METHOD__ . ': Redis exception: ' . $e->getMessage(),
+				'all',
+				[ 'method' => $method, 'zone' => $zone ]
+			);
 			return false;
 		}
 

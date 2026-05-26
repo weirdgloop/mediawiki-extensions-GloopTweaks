@@ -68,7 +68,6 @@ use MediaWiki\Title\ForeignTitle;
 use MediaWiki\Title\Title;
 use MediaWiki\User\User;
 use MediaWiki\User\UserIdentity;
-use MediaWiki\WikiMap\WikiMap;
 use MessageSpecifier;
 use Wikimedia\HtmlArmor\HtmlArmor;
 use Wikimedia\Rdbms\IConnectionProvider;
@@ -224,9 +223,12 @@ class GloopTweaksHooks implements
 				);
 
 				// Purge the cache tag in every CF zone.
-				MediaWikiServices::getInstance()->getJobQueueGroup()->push( new NetworkCentralPurgeJob( [ 'entries' => [ 'GloopTweaks:robots.txt' ], 'method' => 'tag' ] ) );
+				MediaWikiServices::getInstance()->getJobQueueGroup()->push(
+					new NetworkCentralPurgeJob( [ 'entries' => [ 'GloopTweaks:robots.txt' ], 'method' => 'tag' ] )
+				);
 			} elseif ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
-				// When [[MediaWiki:Weirdgloop-contact-filter]] is edited, clear the 'contact-filter-regexes' global cache key.
+				// When [[MediaWiki:Weirdgloop-contact-filter]] is edited, clear the 'contact-filter-regexes'
+				// global cache key.
 				$cache = GloopTweaksUtils::getNetworkCentralCache();
 
 				$cache->delete(

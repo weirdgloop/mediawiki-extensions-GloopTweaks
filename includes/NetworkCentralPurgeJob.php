@@ -6,26 +6,29 @@ use MediaWiki\JobQueue\GenericParameterJob;
 use MediaWiki\JobQueue\Job;
 
 class NetworkCentralPurgeJob extends Job implements GenericParameterJob {
+
+	/** @inheritDoc */
 	public function __construct( $params ) {
 		parent::__construct( 'networkCentralPurgeJob', $params );
-        $this->removeDuplicates = false; // delay semantics are critical
+		// delay semantics are critical
+		$this->removeDuplicates = false;
 	}
 
 	public function run() {
-        global $wgGloopTweaksCFZones;
+		global $wgGloopTweaksCFZones;
 
-        $entries = $this->params[ 'entries' ];
+		$entries = $this->params[ 'entries' ];
 		$method = $this->params[ 'method' ];
-        $purger = new GloopEventRelayer([]);
-        $zones = array_values( $wgGloopTweaksCFZones );
+		$purger = new GloopEventRelayer( [] );
+		$zones = array_values( $wgGloopTweaksCFZones );
 
-        foreach ( $zones as $zone ) {
-            $status = $purger->purgeByMethod( $entries, $method, $zone, true );
-            // Job is retryable to handle purge failures.
-            if ( !$status ) {
-                return false;
-            }
-        }
+		foreach ( $zones as $zone ) {
+			$status = $purger->purgeByMethod( $entries, $method, $zone, true );
+			// Job is retryable to handle purge failures.
+			if ( !$status ) {
+				return false;
+			}
+		}
 
 		return true;
 	}
