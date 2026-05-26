@@ -1,0 +1,74 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    name: "CI: MW ${{ matrix.mw }}, PHP ${{ matrix.php }}"
+    continue-on-error: ${{ matrix.experimental }}
+
+    strategy:
+      matrix:
+        include:
+          - mw: 'weirdgloop/REL1_45'
+            php: 8.2
+            experimental: false
+
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, ast
+          tools: composer
+
+      - name: Cache MediaWiki
+        id: cache-mediawiki
+        uses: actions/cache@v5
+        with:
+          path: |
+            mediawiki
+            !mediawiki/extensions/
+            !mediawiki/vendor/
+          key: mw_${{ matrix.mw }}-php${{ matrix.php }}-v1
+
+      - name: Cache Composer cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.composer/cache
+          key: composer-php${{ matrix.php }}
+
+      - uses: actions/checkout@v6
+        with:
+          path: EarlyCopy
+
+      - name: Install MediaWiki
+        if: steps.cache-mediawiki.outputs.cache-hit != 'true'
+        run: bash EarlyCopy/.github/workflows/installWiki.sh ${{ matrix.mw }}
+
+      - uses: actions/checkout@v6
+        with:
+          path: mediawiki/extensions/GloopTweaks
+
+      - name: Composer update (core)
+        run: composer update
+        working-directory: mediawiki
+
+      # TODO Uncomment once we have unit tests
+      #- name: Run PHPUnit
+      #  run: composer run phpunit extensions/GloopTweaks/tests
+      #  working-directory: mediawiki
+
+      - name: Composer update (extension)
+        run: composer update
+        working-directory: mediawiki/extensions/GloopTweaks
+
+      - name: Run phpcs
+        working-directory: mediawiki/extensions/GloopTweaks
+        run: composer run test
+
+      - name: Run phan
+        working-directory: mediawiki/extensions/GloopTweaks
+        run: composer run phan
