@@ -26,7 +26,7 @@
 	"group-staff": "スタッフ",
 	"group-autopatrol-member": "{{GENDER:$1|自動巡回の利用者}}",
 	"group-cats-member": "{{GENDER:$1|CATSのメンバー}}",
-	"group-director-member": "{{GENDER:$1|ディレクター}}",
+	"group-directors-member": "{{GENDER:$1|ディレクター}}",
 	"group-global-interface-maintainer-member": "{{GENDER:$1|全体インターフェース維持員}}",
 	"group-patrollers-member": "{{GENDER:$1|巡回者}}",
 	"group-staff-member": "{{GENDER:$1|スタッフ}}",
