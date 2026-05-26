@@ -861,7 +861,7 @@ EOD
 		} catch ( Exception $exception ) {
 			// Catch and log any exceptions. The batch query is optional, and it should not cause an error if something
 			// doesn't work.
-			LoggerFactory::getInstance( 'GloopTweaks' )->error( $exception );
+			LoggerFactory::getInstance( 'GloopTweaks' )->error( (string)$exception );
 		}
 	}
 }

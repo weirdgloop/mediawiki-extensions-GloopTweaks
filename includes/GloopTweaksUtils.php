@@ -5,6 +5,7 @@ namespace MediaWiki\Extension\GloopTweaks;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Request\WebRequest;
 use Wikimedia\AtEase\AtEase;
+use Wikimedia\ObjectCache\BagOStuff;
 
 class GloopTweaksUtils {
 	public static function currentWikiIsNetworkCentralWiki() {

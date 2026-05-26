@@ -2,7 +2,9 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use MediaWiki\Config\Config;
 use MediaWiki\MediaWikiServices;
+use RedisException;
 use Wikimedia\EventRelayer\EventRelayer;
 use Wikimedia\ObjectCache\RedisConnectionPool;
 
@@ -13,8 +15,7 @@ use Wikimedia\ObjectCache\RedisConnectionPool;
 class GloopEventRelayer extends EventRelayer {
 	// Cloudflare limits purge_cache API to 100 URLs per request.
 	private const MAX_URLS_PER_REQUEST = 100;
-	/** @var Config */
-	private $config;
+	private Config $config;
 	/** @var RedisConnectionPool|null */
 	private $redisPool = null;
 	/** @var string */
@@ -79,6 +80,7 @@ class GloopEventRelayer extends EventRelayer {
 		// Perform the purge requests a chunk at a time.
 		foreach ( $chunks as $chunk ) {
 			curl_setopt( $ch, CURLOPT_POSTFIELDS, '{"files":' . json_encode( $chunk, JSON_UNESCAPED_SLASHES ) . '}' );
+			// @phan-suppress-next-line PhanPluginUseReturnValueInternalKnown
 			curl_exec( $ch );
 		}
 		curl_close( $ch );
