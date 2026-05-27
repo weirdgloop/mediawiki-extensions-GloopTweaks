@@ -2,10 +2,7 @@
 
 MW_BRANCH=$1
 
-wget https://github.com/wikimedia/mediawiki/archive/$MW_BRANCH.tar.gz -nv
-
-tar -zxf $MW_BRANCH.tar.gz
-mv mediawiki-$MW_BRANCH mediawiki
+git clone https://github.com/wikimedia/mediawiki/ --branch "$MW_BRANCH" --depth 1
 
 cd mediawiki
 
@@ -39,9 +36,4 @@ cat <<EOT >> composer.local.json
 	}
 }
 EOT
-
-# Download phpunit.xml.dist or phpunit.xml.template as they're not in the tarballs
-# Taken from https://github.com/StarCitizenTools/mediawiki-ci-workflows/blob/main/.github/workflows/test-php.yml
-wget "https://raw.githubusercontent.com/wikimedia/mediawiki/${MW_BRANCH}/phpunit.xml.dist" -nv || \
-  wget "https://raw.githubusercontent.com/wikimedia/mediawiki/${MW_BRANCH}/phpunit.xml.template" -nv
 COMMENT
