@@ -151,6 +151,7 @@ class GloopTweaksHooks implements
 	public function onAfterImportPage( $title, $foreignTitle, $revCount, $sRevCount, $pageInfo ): void {
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		$parsed = parse_url( $title->getFullURL() );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 	}
 
@@ -175,6 +176,7 @@ class GloopTweaksHooks implements
 	): void {
 		// Work around page ID for a title no longer existing by the time MediaWiki purges after page deletion.
 		$dbName = $this->config->get( MainConfigNames::DBname );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 		CdnCacheUpdate::purgeGloop( [ "$dbName:page:$pageID" ], 'tag' );
 	}
 
@@ -191,6 +193,7 @@ class GloopTweaksHooks implements
 	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ): void {
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		$parsed = parse_url( Title::castFromLinkTarget( $new )->getFullURL() );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 	}
 
@@ -207,6 +210,7 @@ class GloopTweaksHooks implements
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		if ( $editResult->isNew() ) {
 			$parsed = parse_url( $wikiPage->getTitle()->getFullURL() );
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 		}
 
@@ -265,6 +269,7 @@ class GloopTweaksHooks implements
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		if ( $created ) {
 			$parsed = parse_url( Title::newFromPageIdentity( $page )->getFullURL() );
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 		}
 	}

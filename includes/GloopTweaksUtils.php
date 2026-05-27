@@ -2,8 +2,12 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use MediaWiki\Content\Content;
+use MediaWiki\DAO\WikiAwareEntity;
+use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Request\WebRequest;
+use MediaWiki\Revision\SlotRecord;
 use Wikimedia\AtEase\AtEase;
 use Wikimedia\ObjectCache\BagOStuff;
 
@@ -41,6 +45,10 @@ class GloopTweaksUtils {
 		$page = $services->getPageStoreFactory()
 			->getPageStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
 			->getPageByText( $pageName );
+		if ( !$page ) {
+			return null;
+		}
+
 		$rev = $services->getRevisionStoreFactory()
 			->getRevisionStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
 			->getRevisionByTitle( $page );
