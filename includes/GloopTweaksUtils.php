@@ -17,6 +17,7 @@ class GloopTweaksUtils {
 
 		return $wgGloopTweaksNetworkCentralDB && $wgDBname === $wgGloopTweaksNetworkCentralDB;
 	}
+
 	/**
 	 * @return BagOStuff
 	 */
@@ -29,6 +30,27 @@ class GloopTweaksUtils {
 		} else {
 			return $objectCacheFactory->getLocalClusterInstance();
 		}
+	}
+
+	/**
+	 * Fetches a page's content from current family's central wiki.
+	 * @param MediaWikiServices $services
+	 * @param string $pageName
+	 * @return Content|null
+	 */
+	public static function getContentFromFamilyCentralWiki( MediaWikiServices $services, string $pageName ) {
+		$config = $services->getMainConfig();
+		$wiki = $config->get( 'GloopTweaksFamilyCentralDB' );
+		$targetWikiIsCurrentWiki = $wiki === $config->get( MainConfigNames::DBname );
+		$page = $services->getPageStoreFactory()
+			->getPageStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
+			->getPageByText( $pageName );
+		$rev = $services->getRevisionStoreFactory()
+			->getRevisionStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
+			->getRevisionByTitle( $page );
+		$content = $rev ? $rev->getContent( SlotRecord::MAIN ) : null;
+
+		return $content;
 	}
 
 	/**
