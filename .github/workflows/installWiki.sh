@@ -11,8 +11,8 @@ cd mediawiki
 
 composer install
 
-git clone https://github.com/wikimedia/mediawiki-extensions-ContactPage.git extensions/ContactPage
-git clone https://github.com/weirdgloop/mediawiki-extensions-Scribunto.git extensions/Scribunto
+git clone https://github.com/wikimedia/mediawiki-extensions-ContactPage.git -b $MW_BRANCH extensions/ContactPage
+git clone https://github.com/weirdgloop/mediawiki-extensions-Scribunto.git -b weirdgloop/$MW_BRANCH extensions/Scribunto
 
 # Temporarily commented out since we don't run any unit tests right now
 : <<'COMMENT'
