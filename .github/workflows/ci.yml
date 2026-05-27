@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - mw: 'weirdgloop/REL1_45'
+          - mw: 'REL1_45'
             php: 8.2
             experimental: false
 
