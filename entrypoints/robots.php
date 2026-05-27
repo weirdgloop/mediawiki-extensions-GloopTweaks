@@ -1,10 +1,8 @@
 <?php
 // This file is intended to be symlinked into $IP.
 
-use MediaWiki\DAO\WikiAwareEntity;
 use MediaWiki\Extension\GloopTweaks\GloopTweaksUtils;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Revision\SlotRecord;
 
 define( 'MW_NO_SESSION', 1 );
 define( 'MW_ENTRY_POINT', 'robots' );
@@ -14,7 +12,7 @@ require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
 wfRobotsMain();
 
 function wfRobotsMain() {
-	global $wgDBname, $wgCanonicalServer, $wgScriptPath, $wgArticlePath,
+	global $wgCanonicalServer, $wgScriptPath, $wgArticlePath,
 		   $wgGloopTweaksNoRobots, $wgNamespaceRobotPolicies;
 
 	header( 'Cache-Tag: GloopTweaks:robots.txt' );
@@ -27,6 +25,7 @@ function wfRobotsMain() {
 	}
 
 	$cache = GloopTweaksUtils::getNetworkCentralCache();
+	$method = __METHOD__;
 	$text = $cache->getWithSetCallback(
 		$cache->makeGlobalKey(
 			'GloopTweaks',
@@ -34,12 +33,12 @@ function wfRobotsMain() {
 		),
 		// 1 hour cache time.
 		3600,
-		function () {
+		static function () use ( $method ) {
 			global $wgGloopTweaksNetworkCentralRobotsTxtUrl;
 			$text = '';
 			if ( $wgGloopTweaksNetworkCentralRobotsTxtUrl ) {
 				$text = MediaWikiServices::getInstance()->getHttpRequestFactory()
-					->get( $wgGloopTweaksNetworkCentralRobotsTxtUrl, [], __METHOD__ ) ?? '';
+					->get( $wgGloopTweaksNetworkCentralRobotsTxtUrl, [], $method ) ?? '';
 			}
 			return $text;
 		}
@@ -55,8 +54,6 @@ function wfRobotsMain() {
 	// Disallow noindexed namespaces in robots.txt as well.
 	$services = MediaWikiServices::getInstance();
 	$contLang = $services->getContentLanguage();
-	$langConverter = $services->getLanguageConverterFactory()->getLanguageConverter( $contLang );
-	$namespaceInfo = $services->getNamespaceInfo();
 	$namespaces = [];
 
 	// NS_SPECIAL is hardcoded as noindex, but not normally in $wgNamespaceRobotPolicies.

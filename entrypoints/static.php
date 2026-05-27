@@ -68,9 +68,8 @@ function wfStaticMain() {
 	if ( !$urlHash ) {
 		$stats->increment( 'wglstatic.nohash' );
 		header( 'Cache-Control: public, max-age=86400, must-revalidate, s-maxage=86400, stale-while-revalidate=300' );
-	}
-	// Otherwise either short cache if it is a mismatch, or immutable if it matches or wouldn't be produced by MW.
- else {
+	} else {
+		// Otherwise either short cache if it is a mismatch, or immutable if it matches or wouldn't be produced by MW.
 		$validHash = preg_match( '/^[a-fA-F0-9]{5}$/', $urlHash );
 		$fileHash = $validHash ? substr( md5_file( $filePath ), 0, 5 ) : null;
 
@@ -78,13 +77,12 @@ function wfStaticMain() {
 		if ( !$validHash || $urlHash === $fileHash ) {
 			$stats->increment( 'wglstatic.immutable' );
 			header( 'Cache-Control: public, max-age=31536000, immutable' );
-		}
-		// Otherwise, it mismatched, so make sure the resource stays reasonably fresh.
- else {
+		} else {
+			// Otherwise, it mismatched, so make sure the resource stays reasonably fresh.
 			$stats->increment( 'wglstatic.mismatch' );
 			header( 'Cache-Control: public, max-age=0, must-revalidate, s-maxage=60, stale-while-revalidate=60' );
- }
- }
+		}
+	}
 
 	if ( !empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
 		$ims = preg_replace( '/;.*$/', '', $_SERVER['HTTP_IF_MODIFIED_SINCE'] );
