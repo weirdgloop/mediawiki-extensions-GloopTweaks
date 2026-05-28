@@ -2,13 +2,14 @@
 
 MW_BRANCH=$1
 
-git clone -b $MW_BRANCH --depth 1 git@github.com:weirdgloop/mediawiki.git mediawiki
+git clone https://github.com/wikimedia/mediawiki/ --branch "$MW_BRANCH" --depth 1
+
 cd mediawiki
 
 composer install
 
-git clone https://github.com/wikimedia/mediawiki-extensions-ContactPage.git extensions/ContactPage
-git clone https://github.com/weirdgloop/mediawiki-extensions-Scribunto.git extensions/Scribunto
+git clone https://github.com/wikimedia/mediawiki-extensions-ContactPage.git -b $MW_BRANCH extensions/ContactPage
+git clone https://github.com/weirdgloop/mediawiki-extensions-Scribunto.git -b weirdgloop/$MW_BRANCH extensions/Scribunto
 
 # Temporarily commented out since we don't run any unit tests right now
 : <<'COMMENT'
@@ -35,9 +36,4 @@ cat <<EOT >> composer.local.json
 	}
 }
 EOT
-
-# Download phpunit.xml.dist or phpunit.xml.template as they're not in the tarballs
-# Taken from https://github.com/StarCitizenTools/mediawiki-ci-workflows/blob/main/.github/workflows/test-php.yml
-wget "https://raw.githubusercontent.com/weirdgloop/mediawiki/${MW_BRANCH}/phpunit.xml.dist" -nv || \
-  wget "https://raw.githubusercontent.com/weirdgloop/mediawiki/${MW_BRANCH}/phpunit.xml.template" -nv
 COMMENT

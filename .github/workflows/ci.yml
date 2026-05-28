@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - mw: 'weirdgloop/REL1_45'
+          - mw: 'REL1_45'
             php: 8.2
             experimental: false
 
@@ -66,9 +66,11 @@ jobs:
         working-directory: mediawiki/extensions/GloopTweaks
 
       - name: Run phpcs
+        id: phpcs
         working-directory: mediawiki/extensions/GloopTweaks
         run: composer run test
 
       - name: Run phan
+        if: success() || steps.phpcs.conclusion == 'failure'
         working-directory: mediawiki/extensions/GloopTweaks
         run: composer run phan
