@@ -1,0 +1,41 @@
+{
+	"@metadata": {
+		"authors": [
+			"Wilf233"
+		]
+	},
+	"group-autopatrol": "善筆",
+	"group-cats": "大司寇",
+	"group-directors": "庶尹",
+	"group-global-interface-maintainer": "大司空",
+	"group-patrollers": "稽查",
+	"group-staff": "有司",
+	"group-autopatrol-member": "{{GENDER:$1|善筆}}",
+	"group-cats-member": "{{GENDER:$1|大司寇}}",
+	"group-directors-member": "{{GENDER:$1|庶尹}}",
+	"group-global-interface-maintainer-member": "{{GENDER:$1|大司空}}",
+	"group-patrollers-member": "{{GENDER:$1|稽查}}",
+	"group-staff-member": "{{GENDER:$1|有司}}",
+	"grouppage-autopatrol": "{{ns:project}}:善筆",
+	"grouppage-cats": "{{ns:project}}:大司寇",
+	"grouppage-directors": "{{ns:project}}:庶尹",
+	"grouppage-global-interface-maintainer": "{{ns:project}}:大司空",
+	"grouppage-patrollers": "{{ns:project}}:稽查",
+	"grouppage-staff": "{{ns:project}}:有司",
+	"group-autopatrol.css": "/* 此所置CSS獨染善筆 */",
+	"group-cats.css": "/* 此所置CSS獨染大司寇 */",
+	"group-directors.css": "/* 此所置CSS獨染庶尹 */",
+	"group-patrollers.css": "/* 此所置CSS獨染稽查 */",
+	"group-staff.css": "/* 此所置CSS獨染有司 */",
+	"group-autopatrol.js": "/* 此所置JavaScript獨餉善筆 */",
+	"group-cats.js": "/* 此所置JavaScript獨餉大司寇 */",
+	"group-directors.js": "/* 此所置JavaScript獨餉庶尹 */",
+	"group-patrollers.js": "/* 此所置JavaScript獨餉稽查 */",
+	"group-staff.js": "/* 此所置JavaScript獨餉有司 */",
+	"right-directoreditprotected": "纂「{{int:protect-level-directoreditprotected}}」錮頁",
+	"right-editstaff": "纂「{{int:protect-level-editstaff}}」錮頁",
+	"action-directoreditprotected": "纂「{{int:protect-level-directoreditprotected}}」錮頁",
+	"action-editstaff": "纂「{{int:protect-level-editstaff}}」錮頁",
+	"protect-level-directoreditprotected": "惟庶尹",
+	"protect-level-editstaff": "惟有司"
+}
