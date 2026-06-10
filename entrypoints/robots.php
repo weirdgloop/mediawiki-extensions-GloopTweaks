@@ -62,7 +62,7 @@ function wfRobotsMain() {
 	foreach ( $wgNamespaceRobotPolicies as $ns => $policy ) {
 		if ( str_contains( $policy, 'noindex' ) ) {
 			$name = $contLang->getNsText( $ns );
-			if ( $name !== '' ) {
+			if ( $name !== false && $name !== '' ) {
 				$namespaces[] = $name;
 			}
 		}
