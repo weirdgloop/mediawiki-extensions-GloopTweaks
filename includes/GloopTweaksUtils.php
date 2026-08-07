@@ -12,7 +12,7 @@ use Wikimedia\AtEase\AtEase;
 use Wikimedia\ObjectCache\BagOStuff;
 
 class GloopTweaksUtils {
-	public static function currentWikiIsNetworkCentralWiki() {
+	public static function currentWikiIsNetworkCentralWiki(): bool {
 		global $wgDBname, $wgGloopTweaksNetworkCentralDB;
 
 		return $wgGloopTweaksNetworkCentralDB && $wgDBname === $wgGloopTweaksNetworkCentralDB;
