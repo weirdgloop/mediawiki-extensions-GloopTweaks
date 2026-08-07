@@ -22,6 +22,11 @@
 	"config": {
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"audit": {
+			"ignore": {
+				"PKSA-rdkp-vv9z-mjkg": "Only fixed for mediawiki/mediawiki-codesniffer 52 right now, which requires PHP 8.3"
+			}
 		}
 	}
 }
