@@ -10,7 +10,6 @@ use Wikimedia\ObjectCache\RedisConnectionPool;
 
 /**
  * EventRelayer to perform Cloudflare purging.
- *
  */
 class GloopEventRelayer extends EventRelayer {
 	// Cloudflare limits purge_cache API to 100 URLs per request.
@@ -83,7 +82,6 @@ class GloopEventRelayer extends EventRelayer {
 			// @phan-suppress-next-line PhanPluginUseReturnValueInternalKnown
 			curl_exec( $ch );
 		}
-		curl_close( $ch );
 	}
 
 	/**

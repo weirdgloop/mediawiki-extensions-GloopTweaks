@@ -49,6 +49,7 @@ class RefreshLinksBatchJob extends Job implements GenericParameterJob {
 		$this->dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 	}
 
+	/** @inheritDoc */
 	public function run() {
 		$start = $this->params[ 'start' ];
 		$end = $this->params[ 'end' ];

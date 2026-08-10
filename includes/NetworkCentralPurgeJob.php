@@ -14,6 +14,7 @@ class NetworkCentralPurgeJob extends Job implements GenericParameterJob {
 		$this->removeDuplicates = false;
 	}
 
+	/** @inheritDoc */
 	public function run() {
 		global $wgGloopTweaksCFZones;
 

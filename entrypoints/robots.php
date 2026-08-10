@@ -74,14 +74,14 @@ function wfRobotsMain() {
 		$lcns = strtolower( $ns );
 		$disallowText .= <<<DISALLOW
 
-        Disallow: $articlePath$ns:
-        Disallow: $articlePath$ns%3A
-        Disallow: $articlePath$lcns:
-        Disallow: $wgScriptPath/*?title=$ns:
-        Disallow: $wgScriptPath/*?title=$ns%3A
-        Disallow: $wgScriptPath/*?*&title=$ns:
-        Disallow: $wgScriptPath/*?*&title=$ns%3A
-        DISALLOW;
+		Disallow: $articlePath$ns:
+		Disallow: $articlePath$ns%3A
+		Disallow: $articlePath$lcns:
+		Disallow: $wgScriptPath/*?title=$ns:
+		Disallow: $wgScriptPath/*?title=$ns%3A
+		Disallow: $wgScriptPath/*?*&title=$ns:
+		Disallow: $wgScriptPath/*?*&title=$ns%3A
+		DISALLOW;
 	}
 	if ( $text ) {
 		$text = str_replace( 'User-Agent: *', $disallowText, $text );
