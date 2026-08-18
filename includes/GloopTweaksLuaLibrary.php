@@ -44,7 +44,8 @@ class GloopTweaksLuaLibrary extends LibraryBase {
 				// ... and we can
 				if ( $mto && !$mto->isError() ) {
 					// ... change the URL to point to a thumbnail.
-					$url = wfExpandUrl( $mto->getUrl(), PROTO_RELATIVE );
+					$url = MediaWikiServices::getInstance()->getUrlUtils()
+						->expand( (string)$mto->getUrl(), PROTO_RELATIVE );
 				}
 			}
 			return [ $url ];
