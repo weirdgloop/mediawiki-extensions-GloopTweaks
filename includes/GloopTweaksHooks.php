@@ -514,11 +514,11 @@ EOD
 			}
 		} else {
 			/* Open Graph protocol */
-			$out->addMeta( 'og:site_name', $siteName );
 			$out->addMeta( 'og:title', $out->getHTMLTitle() );
 			$out->addMeta( 'og:type', 'article' );
 		}
 		/* Open Graph protocol */
+		$out->addMeta( 'og:site_name', $siteName );
 		$out->addMeta( 'og:url', $title->getFullURL() );
 	}
 
