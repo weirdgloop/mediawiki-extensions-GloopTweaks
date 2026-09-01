@@ -3,11 +3,14 @@
 
 use MediaWiki\Extension\GloopTweaks\GloopTweaksUtils;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Profiler\ProfilingContext;
 
 define( 'MW_NO_SESSION', 1 );
 define( 'MW_ENTRY_POINT', 'robots' );
 
 require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
+
+ProfilingContext::singleton()->init( 'wg', MW_ENTRY_POINT );
 
 wfRobotsMain();
 

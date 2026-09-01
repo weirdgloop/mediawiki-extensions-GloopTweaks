@@ -11,6 +11,8 @@
  */
 
 // Validate request method
+use MediaWiki\Profiler\ProfilingContext;
+
 if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 	http_response_code( 405 );
 	header( 'Allow: POST' );
@@ -32,6 +34,8 @@ define( 'MW_DB', $_GET['db'] );
 define( 'MEDIAWIKI_JOB_RUNNER', 1 );
 define( 'MW_ENTRY_POINT', 'run_jobs' );
 require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
+
+ProfilingContext::singleton()->init( 'wg', MW_ENTRY_POINT );
 
 // Verify request signature
 $signedNames = [ 'db', 'maxjobs', 'maxmem', 'maxtime', 'sigexpiry', 'type' ];
