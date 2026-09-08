@@ -2,11 +2,14 @@
 // This file is intended to be symlinked into $IP.
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Profiler\ProfilingContext;
 
 define( 'MW_NO_SESSION', 1 );
 define( 'MW_ENTRY_POINT', 'stream_file' );
 
 require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
+
+ProfilingContext::singleton()->init( 'wg', MW_ENTRY_POINT );
 
 // phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 wfStreamFileMain( $_GET );

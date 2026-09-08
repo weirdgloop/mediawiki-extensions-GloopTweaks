@@ -3,10 +3,14 @@
 // Based on
 //	https://github.com/wikimedia/operations-mediawiki-config/blob/4cd21ef34b81dd10b04c230f7e9eedc66bce1a87/w/static.php
 
+use MediaWiki\Profiler\ProfilingContext;
+
 define( 'MW_NO_SESSION', 1 );
 define( 'MW_ENTRY_POINT', 'static' );
 
 require dirname( $_SERVER['SCRIPT_FILENAME'] ) . '/includes/WebStart.php';
+
+ProfilingContext::singleton()->init( 'wg', MW_ENTRY_POINT );
 
 /**
  * @param int $status
