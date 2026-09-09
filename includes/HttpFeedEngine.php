@@ -38,11 +38,19 @@ class HttpFeedEngine extends FormattedRCFeed {
 	 */
 	public function send( array $feed, $line ) {
 		$requestFactory = MediaWikiServices::getInstance()->getHttpRequestFactory();
-
-		$request = $requestFactory->create( $feed['uri'], [
+		$options = [
 			'method' => 'POST',
-			'postData' => $line,
-		], __METHOD__ );
+			'postData' => $line
+		];
+
+		if ( !empty( $feed['username'] ) ) {
+			$options['username'] = $feed['username'];
+		}
+		if ( !empty( $feed['password'] ) ) {
+			$options['password'] = $feed['password'];
+		}
+
+		$request = $requestFactory->create( $feed['uri'], $options, __METHOD__ );
 		$request->setHeader( 'Content-Type', 'application/json' );
 		$status = $request->execute();
 		if ( !$status->isOK() ) {
