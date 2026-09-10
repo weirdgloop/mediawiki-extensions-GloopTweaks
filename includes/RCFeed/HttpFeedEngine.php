@@ -3,7 +3,7 @@
  * @file
  */
 
-namespace MediaWiki\Extension\GloopTweaks;
+namespace MediaWiki\Extension\GloopTweaks\RCFeed;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\RCFeed\FormattedRCFeed;
@@ -14,6 +14,8 @@ use MediaWiki\RCFeed\FormattedRCFeed;
  * Parameters:
  * - `formatter`: (Required) Which RCFeedFormatter class to use. Should be JSON.
  * - `uri`: (Required) Where to send the messages.
+ * - `username`: (Optional) Username for HTTP basic auth.
+ * - `password`: (Optional) Password for HTTP basic auth.
  *
  * @par Example:
  * @code
