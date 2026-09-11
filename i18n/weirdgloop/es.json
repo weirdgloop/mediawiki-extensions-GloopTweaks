@@ -4,6 +4,9 @@
 			"Supeika"
 		]
 	},
+	"group-confirmed": "Confirmados",
 	"group-staff": "Personal",
-	"group-staff-member": "Miembro del personal"
+	"group-confirmed-member": "{{GENDER:$1|confirmado|confirmada}}",
+	"group-staff-member": "Miembro del personal",
+	"grouppage-confirmed": "{{ns:project}}:Confirmados"
 }
