@@ -50,9 +50,10 @@ class SensitiveJSONRCFeedFormatter extends JSONRCFeedFormatter {
 		$packet['request'] = [
 			'ip' => $req->getIP(),
 			'ua' => $req->getHeader( 'User-Agent' ),
-			// These headers are added by Cloudflare
+			// Added by Cloudflare by turning on Network -> IP Geolocation
 			'cn' => $req->getHeader( 'CF-IPCountry' ),
-			'asn' => $req->getHeader( 'CF-ASN' )
+			// Added by Cloudflare using a Request Header Transform Rule
+			'asn' => $req->getHeader( 'WGL-ASN' )
 		];
 
 		if ( !empty( $packet['revision']['new'] ) ) {
