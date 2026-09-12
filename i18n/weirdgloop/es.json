@@ -4,6 +4,9 @@
 			"Supeika"
 		]
 	},
+	"group-ipblock-exempt": "Exentos de bloqueo a IP",
 	"group-staff": "Personal",
-	"group-staff-member": "Miembro del personal"
+	"group-ipblock-exempt-member": "{{GENDER:$1|exento de bloqueo IP|exenta de bloqueo IP}}",
+	"group-staff-member": "Miembro del personal",
+	"grouppage-ipblock-exempt": "{{ns:project}}:Exento de bloqueo a IP"
 }

@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+		]
+	},
+	"group-ipblock-exempt": "Uitgezonderden van IP-adresblokkades",
+	"group-ipblock-exempt-member": "{{GENDER:$1|uitgezonderde van IP-adresblokkades}}",
+	"grouppage-ipblock-exempt": "{{ns:project}}:Uitgezonderden van IP-adresblokkades"
+}
