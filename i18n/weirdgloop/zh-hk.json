@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+		]
+	},
+	"group-confirmed": "確認用戶",
+	"group-confirmed-member": "{{GENDER:$1|確認用戶}}",
+	"grouppage-confirmed": "{{ns:project}}:確認用戶"
+}
