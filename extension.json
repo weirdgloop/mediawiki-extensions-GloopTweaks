@@ -59,6 +59,9 @@
 				"LinkCache",
 				"LinkRenderer"
 			]
+		},
+		"schema": {
+			"class": "MediaWiki\\Extension\\GloopTweaks\\SchemaHooks"
 		}
 	},
 	"Hooks": {
@@ -86,7 +89,8 @@
 		"RawPageViewBeforeOutput": "main",
 		"APIAfterExecute": "main",
 		"ContentAlterParserOutput": "main",
-		"ResourceLoaderBeforeResponse": "main"
+		"ResourceLoaderBeforeResponse": "main",
+		"LoadExtensionSchemaUpdates": "schema"
 	},
 	"JobClasses": {
 		"networkCentralPurgeJob": "MediaWiki\\Extension\\GloopTweaks\\NetworkCentralPurgeJob",
