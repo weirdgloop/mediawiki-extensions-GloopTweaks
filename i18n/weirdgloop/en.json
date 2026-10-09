@@ -34,7 +34,7 @@
 	"group-cats-member": "{{GENDER:$1|CATS member}}",
 	"group-directors-member": "{{GENDER:$1|director}}",
 	"group-global-interface-maintainer-member": "{{GENDER:$1|global interface maintainer}}",
-	"group-moderators-member": "{{GENDER:$1|moderators}}",
+	"group-moderators-member": "{{GENDER:$1|moderator}}",
 	"group-patrollers-member": "{{GENDER:$1|patroller}}",
 	"group-staff-member": "{{GENDER:$1|staff}}",
 	"grouppage-autopatrol": "{{ns:project}}:Autopatrolled users",
