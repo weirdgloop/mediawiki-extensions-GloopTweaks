@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+		]
+	},
+	"group-ipblock-exempt": "IP 차단 면제자",
+	"group-ipblock-exempt-member": "{{GENDER:$1|IP 차단 면제자}}",
+	"grouppage-ipblock-exempt": "{{ns:project}}:IP 차단 면제"
+}
