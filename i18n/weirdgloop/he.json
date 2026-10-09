@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": [
+		]
+	},
+	"group-confirmed": "משתמשים מאומתים",
+	"group-ipblock-exempt": "חסיני חסימות IP",
+	"group-confirmed-member": "{{GENDER:$1|משתמש מאומת|משתמשת מאומתת}}",
+	"group-ipblock-exempt-member": "{{GENDER:$1|חסין|חסינת}} חסימות IP",
+	"grouppage-confirmed": "{{ns:project}}:משתמש מאומת",
+	"grouppage-ipblock-exempt": "{{ns:project}}:חסין חסימות IP"
+}

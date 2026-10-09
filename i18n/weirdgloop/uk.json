@@ -3,7 +3,10 @@
 		"authors": [
 		]
 	},
+	"group-confirmed": "Підтверджені користувачі",
 	"group-ipblock-exempt": "Виключення з IP-блокувань",
+	"group-confirmed-member": "{{GENDER:$1|підтверджений користувач|підтверджена користувачка}}",
 	"group-ipblock-exempt-member": "{{GENDER:$1|виключення з блокування IP}}",
+	"grouppage-confirmed": "{{ns:project}}:Підтверджені користувачі",
 	"grouppage-ipblock-exempt": "{{ns:project}}:Виключення з блокування IP"
 }
