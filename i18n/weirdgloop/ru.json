@@ -4,5 +4,8 @@
 			"BabylonAS"
 		]
 	},
-	"weirdgloop-copyright": "Содержимое сайта доступно по лицензии $1; [https://meta.weirdgloop.org/w/Licensing могут действовать отдельные условия]."
+	"weirdgloop-copyright": "Содержимое сайта доступно по лицензии $1; [https://meta.weirdgloop.org/w/Licensing могут действовать отдельные условия].",
+	"group-confirmed": "Подтверждённые участники",
+	"group-confirmed-member": "{{GENDER:$1|подтверждённый участник|подтверждённая участница}}",
+	"grouppage-confirmed": "{{ns:project}}:Подтверждённые участники"
 }
