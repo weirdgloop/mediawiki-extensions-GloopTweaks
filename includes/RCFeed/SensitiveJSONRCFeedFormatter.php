@@ -63,7 +63,7 @@ class SensitiveJSONRCFeedFormatter extends JSONRCFeedFormatter {
 				$content = $revision->getContent( SlotRecord::MAIN );
 				if ( $content ) {
 					$text = $content instanceof TextContent ? $content->getText() : $content->getTextForSearchIndex();
-					$packet['revision']['text'] = substr( $text, 0, 1000000 );
+					$packet['revision']['text'] = substr( $text, 0, 100000 );
 				}
 			}
 		}
