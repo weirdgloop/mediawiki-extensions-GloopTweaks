@@ -69,7 +69,6 @@ class StopForumSpam {
 		curl_setopt( $curl, CURLOPT_TIMEOUT, 10 );
 
 		$result = curl_exec( $curl );
-		curl_close( $curl );
 
 		wfDebugLog( 'GloopTweaks', "SFS lookup for {$url}. Result: {$result}" );
 

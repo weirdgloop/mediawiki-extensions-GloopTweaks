@@ -1,0 +1,6 @@
+ContactPage:
+  repo: https://github.com/wikimedia/mediawiki-extensions-ContactPage.git
+Scribunto:
+  repo: https://github.com/weirdgloop/mediawiki-extensions-Scribunto.git
+  branch_mappings:
+    REL1_45: 'weirdgloop/REL1_45'

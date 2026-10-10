@@ -7,6 +7,7 @@ use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LuaError;
 use MediaWiki\MediaWikiServices;
 
 class GloopTweaksLuaLibrary extends LibraryBase {
+	/** @inheritDoc */
 	public function register() {
 		$lib = [
 			'filepath' => [ $this, 'filepath' ],
@@ -43,7 +44,8 @@ class GloopTweaksLuaLibrary extends LibraryBase {
 				// ... and we can
 				if ( $mto && !$mto->isError() ) {
 					// ... change the URL to point to a thumbnail.
-					$url = wfExpandUrl( $mto->getUrl(), PROTO_RELATIVE );
+					$url = MediaWikiServices::getInstance()->getUrlUtils()
+						->expand( (string)$mto->getUrl(), PROTO_RELATIVE );
 				}
 			}
 			return [ $url ];

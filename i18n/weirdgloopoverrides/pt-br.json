@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Kauan Farias (Faariaz)"
+		]
+	},
+	"weirdgloop-privacypage": "wg:privacy",
+	"weirdgloop-changecontentmodel-text": "Esta página permite que você altere o modelo de conteúdo de uma página nesta wiki. Tenha em mente que, exceto em circunstâncias raras, isto quase nunca é necessário uma vez que pode quebrar sua funcionalidade. [[Special:Contact|Contate]] um administrador do sistema caso não tenha certeza do que está fazendo.",
+	"weirdgloop-emailmessage": "Mensagem:",
+	"weirdgloop-mobile-frontend-copyright": "O conteúdo deste site está licenciado sob $1; <a href=\"https://meta.weirdgloop.org/w/Licensing\">termos adicionais podem ser aplicados</a>.\n\n",
+	"weirdgloop-contactpage-pagetext": "O formulário abaixo pode ser usado para entrar em contato com a Weird Gloop, os operadores da wiki que você está acessando. Caso tenha algum um problema com a wiki em si, talvez seja mais sensato falar com um editor ou administrador do site. '''Se o motivo pela qual deseja nos contatar for referente a uma solicitação de remoção de conteúdo com base no DMCA, acesse [[Special:Contact/dmca|este formulário]].'''",
+	"weirdgloop-newusermessage-editor": "Nova mensagem de usuário",
+	"weirdgloop-revisionslider-help-dialog-slide1": "O controle deslizante de revisões ajuda você a navegar e compará-las na página de diferenças. Caso encontre algum problema, entre em contato conosco!"
+}

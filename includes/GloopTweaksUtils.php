@@ -3,26 +3,52 @@
 namespace MediaWiki\Extension\GloopTweaks;
 
 use MediaWiki\Content\Content;
-use MediaWiki\Content\TextContent;
 use MediaWiki\DAO\WikiAwareEntity;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Request\WebRequest;
 use MediaWiki\Revision\SlotRecord;
 use Wikimedia\AtEase\AtEase;
+use Wikimedia\ObjectCache\BagOStuff;
 
 class GloopTweaksUtils {
+	public static function currentWikiIsNetworkCentralWiki(): bool {
+		global $wgDBname, $wgGloopTweaksNetworkCentralDB;
+
+		return $wgGloopTweaksNetworkCentralDB && $wgDBname === $wgGloopTweaksNetworkCentralDB;
+	}
+
 	/**
+	 * @return BagOStuff
+	 */
+	public static function getNetworkCentralCache() {
+		global $wgGloopTweaksNetworkCentralCacheType;
+
+		$objectCacheFactory = MediaWikiServices::getInstance()->getObjectCacheFactory();
+		if ( $wgGloopTweaksNetworkCentralCacheType !== null ) {
+			return $objectCacheFactory->getInstance( $wgGloopTweaksNetworkCentralCacheType );
+		} else {
+			return $objectCacheFactory->getLocalClusterInstance();
+		}
+	}
+
+	/**
+	 * Fetches a page's content from current family's central wiki.
 	 * @param MediaWikiServices $services
 	 * @param string $pageName
-	 * @param string $wiki
 	 * @return Content|null
 	 */
-	public static function getContentFromWiki( MediaWikiServices $services, string $pageName, string $wiki ) {
-		$targetWikiIsCurrentWiki = $wiki === $services->getMainConfig()->get( MainConfigNames::DBname );
+	public static function getContentFromFamilyCentralWiki( MediaWikiServices $services, string $pageName ) {
+		$config = $services->getMainConfig();
+		$wiki = $config->get( 'GloopTweaksFamilyCentralDB' );
+		$targetWikiIsCurrentWiki = $wiki === $config->get( MainConfigNames::DBname );
 		$page = $services->getPageStoreFactory()
 			->getPageStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
 			->getPageByText( $pageName );
+		if ( !$page ) {
+			return null;
+		}
+
 		$rev = $services->getRevisionStoreFactory()
 			->getRevisionStore( $targetWikiIsCurrentWiki ? WikiAwareEntity::LOCAL : $wiki )
 			->getRevisionByTitle( $page );
@@ -36,19 +62,17 @@ class GloopTweaksUtils {
 	 * @return array
 	 */
 	private static function getContactFilter() {
-		global $wgGloopTweaksNetworkCentralDB;
+		global $wgGloopTweaksNetworkCentralContactFilterUrl;
 
-		$filterContent = self::getContentFromWiki( MediaWikiServices::getInstance(),
-			'MediaWiki:Weirdgloop-contact-filter', $wgGloopTweaksNetworkCentralDB );
-		if ( !( $filterContent instanceof TextContent ) ) {
-			$filterText = '';
-		} else {
-			$filterText = $filterContent->getText();
+		$text = '';
+		if ( $wgGloopTweaksNetworkCentralContactFilterUrl ) {
+			$text = MediaWikiServices::getInstance()->getHttpRequestFactory()
+				->get( $wgGloopTweaksNetworkCentralContactFilterUrl, [], __METHOD__ ) ?? '';
 		}
 
 		$regexes = [];
 
-		$lines = preg_split( "/\r?\n/", $filterText );
+		$lines = preg_split( "/\r?\n/", $text );
 		foreach ( $lines as $line ) {
 			// Strip comments and whitespace.
 			$line = preg_replace( '/#.*$/', '', $line );
@@ -87,15 +111,15 @@ class GloopTweaksUtils {
 	 * @return bool
 	 */
 	public static function checkContactFilter( $text ) {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = self::getNetworkCentralCache();
 
 		$regexes = $cache->getWithSetCallback(
 			$cache->makeGlobalKey(
 				'GloopTweaks',
 				'contact-filter-regexes'
 			),
-			// 5 minute cache time as this isn't a high frequency check.
-			300,
+			// 1 hour cache time.
+			3600,
 			function () {
 				return self::getContactFilter();
 			}

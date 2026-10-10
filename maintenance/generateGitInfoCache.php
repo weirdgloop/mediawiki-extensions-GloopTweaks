@@ -11,6 +11,9 @@ if ( $IP === false ) {
 }
 require_once "$IP/maintenance/Maintenance.php";
 
+define( 'MW_NO_SESSION_HANDLER', 1 );
+define( 'MW_NO_SESSION', 1 );
+
 class GenerateGitInfoCache extends Maintenance {
 	public function execute() {
 		// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix

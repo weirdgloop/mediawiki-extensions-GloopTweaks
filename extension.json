@@ -36,10 +36,6 @@
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\GloopTweaks\\": "includes/"
 	},
-	"ContentHandlers": {
-		"GeoJSON": "MediaWiki\\Extension\\GloopTweaks\\ContentHandler\\GeoJSON",
-		"interactivemap": "MediaWiki\\Extension\\GloopTweaks\\ContentHandler\\InteractiveMap"
-	},
 	"ResourceModules": {
 		"wg.fixedwidth": {
 			"class": "MediaWiki\\Extension\\GloopTweaks\\ResourceLoader\\FixedWidthStyleModule"
@@ -58,8 +54,14 @@
 			"class": "MediaWiki\\Extension\\GloopTweaks\\GloopTweaksHooks",
 			"services": [
 				"MainConfig",
+				"ConnectionProvider",
+				"LinkBatchFactory",
+				"LinkCache",
 				"LinkRenderer"
 			]
+		},
+		"schema": {
+			"class": "MediaWiki\\Extension\\GloopTweaks\\SchemaHooks"
 		}
 	},
 	"Hooks": {
@@ -75,6 +77,7 @@
 		"PageMoveComplete": "main",
 		"PageSaveComplete": "main",
 		"PageUndeleteComplete": "main",
+		"ParserBeforeInternalParse": "main",
 		"ResourceLoaderRegisterModules": "main",
 		"ScribuntoExternalLibraries": "main",
 		"SkinAddFooterLinks": "main",
@@ -86,9 +89,11 @@
 		"RawPageViewBeforeOutput": "main",
 		"APIAfterExecute": "main",
 		"ContentAlterParserOutput": "main",
-		"ResourceLoaderBeforeResponse": "main"
+		"ResourceLoaderBeforeResponse": "main",
+		"LoadExtensionSchemaUpdates": "schema"
 	},
 	"JobClasses": {
+		"networkCentralPurgeJob": "MediaWiki\\Extension\\GloopTweaks\\NetworkCentralPurgeJob",
 		"refreshLinksBatch": "MediaWiki\\Extension\\GloopTweaks\\RefreshLinksBatchJob"
 	},
 	"config_prefix": "wgGloopTweaks",
@@ -103,9 +108,21 @@
 			"value": false,
 			"description": "The database name of the central wiki in the family. Typically, this is something like en_rswiki."
 		},
+		"NetworkCentralCacheType": {
+			"value": null,
+			"description": "The cache type to use for network-wide cache entries. Defaults to $wgMainWANCache."
+		},
 		"NetworkCentralDB": {
 			"value": false,
 			"description": "The database name of the Weird Gloop central wiki, which is metawiki, but can be changed."
+		},
+		"NetworkCentralContactFilterUrl": {
+			"value": false,
+			"description": "The action=raw URL to MediaWiki:Weirdgloop-contact-filter on the Weird Gloop central wiki."
+		},
+		"NetworkCentralRobotsTxtUrl": {
+			"value": false,
+			"description": "The action=raw URL to MediaWiki:Robots.txt on the Weird Gloop central wiki."
 		},
 		"CacheTagDebug": {
 			"value": false
@@ -121,6 +138,9 @@
 		},
 		"CFZone": {
 			"value": ""
+		},
+		"CFZones": {
+			"value": []
 		},
 		"CSP": {
 			"value": ""
@@ -148,6 +168,20 @@
 		},
 		"NoRobots": {
 			"value": false
+		},
+		"PagelinksCachePrewarmReasons": {
+			"value": [
+				"CategoryMembershipChangeJob",
+				"diff-page",
+				"page-edit",
+				"page-preview",
+				"page_view",
+				"page_view_oldid",
+				"ParserOutputForIndexing",
+				"RefreshLinksJob",
+				"refresh-links-maintenance"
+			],
+			"merge_strategy": "provide_default"
 		},
 		"ProtectSiteInterface": {
 			"value": true

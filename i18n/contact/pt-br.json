@@ -1,0 +1,20 @@
+{
+	"@metadata": {
+		"authors": [
+			"Kauan Farias (Faariaz)"
+		]
+	},
+	"weirdgloop-contactpage-disclaimer": "Qualquer informação mencionada aqui não será enviada aos administradores desta wiki, mas sim à [https://weirdgloop.org Weird Gloop], a empresa que mantém este site. Para a maioria dos problemas, você deve entrar em contato com os administradores locais da wiki.",
+	"weirdgloop-contactpage-dmca-affiliation": "Eu sou o(a)...",
+	"weirdgloop-contactpage-dmca-affiliation-me": "Detentor(a) dos direitos autorais",
+	"weirdgloop-contactpage-dmca-affiliation-rep": "Representante do(a) detentor(a) dos direitos autorais",
+	"weirdgloop-contactpage-dmca-address": "Seu endereço postal completo",
+	"weirdgloop-contactpage-dmca-phone": "Seu número de telefone",
+	"weirdgloop-contactpage-dmca-src": "Links para o material de origem que você alega ter sido '''violado''' (um por linha)",
+	"weirdgloop-contactpage-dmca-material": "Links para o material que você alega estar '''violando''' (um por linha)",
+	"weirdgloop-emailmessage-dmca": "Comentários adicionais",
+	"weirdgloop-contactpage-dmca-faith": "Eu acredito de boa-fé que o(a) detentor(a) dos direitos autorais, seu agente ou a lei não autorizam o uso deste conteúdo.",
+	"weirdgloop-contactpage-dmca-accuracy": "Eu declaro que as informações nesta notificação são verídicas e que sou o(a) detentor(a) ou representante autorizado(a) de quem detém os direitos autorais.",
+	"weirdgloop-contactpage-dmca-release": "Eu concordo que a Weird Gloop possa compartilhar parte ou a totalidade desta notificação de remoção com as supressões adequadas ao público e aos administradores das comunidades wiki relevantes.",
+	"weirdgloop-contactpage-dmca-signature": "Assinatura eletrônica"
+}

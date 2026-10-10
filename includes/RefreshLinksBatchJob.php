@@ -26,6 +26,7 @@ use MediaWiki\Deferred\DeferredUpdates;
 use MediaWiki\JobQueue\GenericParameterJob;
 use MediaWiki\JobQueue\Job;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\WikiPage;
 use MediaWiki\Revision\RevisionRecord;
 use Wikimedia\Rdbms\IDatabase;
 
@@ -48,6 +49,7 @@ class RefreshLinksBatchJob extends Job implements GenericParameterJob {
 		$this->dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 	}
 
+	/** @inheritDoc */
 	public function run() {
 		$start = $this->params[ 'start' ];
 		$end = $this->params[ 'end' ];

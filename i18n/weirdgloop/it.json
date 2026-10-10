@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+		]
+	},
+	"group-ipblock-exempt": "Esenti dal blocco IP",
+	"group-ipblock-exempt-member": "{{GENDER:$1|esente dal blocco IP}}",
+	"grouppage-ipblock-exempt": "{{ns:project}}:Esenti dal blocco IP"
+}

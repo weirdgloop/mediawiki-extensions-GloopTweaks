@@ -175,7 +175,7 @@ class GenerateSitemap extends Maintenance {
 	 * Execute
 	 */
 	public function execute() {
-		global $wgCanonicalServer, $wgGloopTweaksSitemapsCompressed;
+		global $wgCanonicalServer, $wgScriptPath, $wgGloopTweaksSitemapsCompressed;
 		$this->setNamespacePriorities();
 		$this->url_limit = 50000;
 		$this->size_limit = ( 2 ** 20 ) * 10;
@@ -188,10 +188,10 @@ class GenerateSitemap extends Maintenance {
 		}
 
 		$this->fspath = realpath( $tmpDir ) . DIRECTORY_SEPARATOR;
-		$this->urlpath = "$wgCanonicalServer/images/sitemaps/";
+		$this->urlpath = "$wgCanonicalServer$wgScriptPath/images/sitemaps/";
 		// WGL - Make sitemap compression configurable as Chinese search engines don't support compressed sitemaps.
 		$this->compress = $wgGloopTweaksSitemapsCompressed;
-		$this->skipRedirects = $this->hasOption( 'skip-redirects', 'yes' ) !== 'no';
+		$this->skipRedirects = $this->hasOption( 'skip-redirects' ) !== 'no';
 		$this->dbr = $this->getDB( DB_REPLICA );
 		$this->generateNamespaces();
 		$this->timestamp = wfTimestamp( TS_ISO_8601, wfTimestampNow() );
@@ -395,7 +395,7 @@ class GenerateSitemap extends Maintenance {
 							continue;
 						}
 						$entry = $this->fileEntry(
-							$title->getCanonicalURL( '', $vCode ),
+							$title->getCanonicalURL( '' ),
 							$date,
 							$this->priority( $namespace )
 						);

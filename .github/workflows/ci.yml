@@ -1,0 +1,21 @@
+name: Run CI
+
+on: [push]
+
+jobs:
+  ci:
+    strategy:
+      matrix:
+        include:
+          - mw-branch: REL1_45
+            php-version: 8.2
+            experimental: false
+
+    uses: weirdgloop/ci-workflows/.github/workflows/extension-ci.yml@main
+    with:
+      extension-name: GloopTweaks
+      mw-branch: ${{ matrix.mw-branch }}
+      php-version: ${{ matrix.php-version }}
+      experimental: ${{ matrix.experimental }}
+      # We don't have any phpunit tests yet
+      phpunit: false

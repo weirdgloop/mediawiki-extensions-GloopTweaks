@@ -2,6 +2,7 @@
 
 namespace MediaWiki\Extension\GloopTweaks;
 
+use Exception;
 use MediaWiki\Actions\RawAction;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiQuery;
@@ -25,6 +26,7 @@ use MediaWiki\Hook\GetLocalURL__InternalHook;
 use MediaWiki\Hook\LocalFilePurgeThumbnailsHook;
 use MediaWiki\Hook\OpenSearchUrlsHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\ParserBeforeInternalParseHook;
 use MediaWiki\Hook\RawPageViewBeforeOutputHook;
 use MediaWiki\Hook\SkinAddFooterLinksHook;
 use MediaWiki\Hook\SkinCopyrightFooterMessageHook;
@@ -33,6 +35,7 @@ use MediaWiki\Hook\TitleSquidURLsHook;
 use MediaWiki\Html\Html;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\Logging\ManualLogEntry;
 use MediaWiki\Mail\MailAddress;
 use MediaWiki\MainConfigNames;
@@ -43,6 +46,8 @@ use MediaWiki\Page\Article;
 use MediaWiki\Page\Hook\ArticleViewHeaderHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
 use MediaWiki\Page\Hook\PageUndeleteCompleteHook;
+use MediaWiki\Page\LinkBatchFactory;
+use MediaWiki\Page\LinkCache;
 use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Page\WikiPage;
 use MediaWiki\Parser\ParserOutput;
@@ -63,9 +68,9 @@ use MediaWiki\Title\ForeignTitle;
 use MediaWiki\Title\Title;
 use MediaWiki\User\User;
 use MediaWiki\User\UserIdentity;
-use MediaWiki\WikiMap\WikiMap;
 use MessageSpecifier;
 use Wikimedia\HtmlArmor\HtmlArmor;
+use Wikimedia\Rdbms\IConnectionProvider;
 
 // phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 
@@ -96,21 +101,19 @@ class GloopTweaksHooks implements
 	RawPageViewBeforeOutputHook,
 	APIAfterExecuteHook,
 	ContentAlterParserOutputHook,
-	ResourceLoaderBeforeResponseHook
+	ResourceLoaderBeforeResponseHook,
+	ParserBeforeInternalParseHook
 {
-	/** @var Config */
-	private Config $config;
 
-	/** @var LinkRenderer */
-	private LinkRenderer $linkRenderer;
+	private bool $linkCachePrewarmed = false;
 
-	/**
-	 * @param Config $config
-	 * @param LinkRenderer $linkRenderer
-	 */
-	public function __construct( Config $config, LinkRenderer $linkRenderer ) {
-		$this->config = $config;
-		$this->linkRenderer = $linkRenderer;
+	public function __construct(
+		private readonly Config $config,
+		private readonly IConnectionProvider $connectionProvider,
+		private readonly LinkBatchFactory $linkBatchFactory,
+		private readonly LinkCache $linkCache,
+		private readonly LinkRenderer $linkRenderer,
+	) {
 	}
 
 	/**
@@ -148,6 +151,7 @@ class GloopTweaksHooks implements
 	public function onAfterImportPage( $title, $foreignTitle, $revCount, $sRevCount, $pageInfo ): void {
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		$parsed = parse_url( $title->getFullURL() );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 	}
 
@@ -172,6 +176,7 @@ class GloopTweaksHooks implements
 	): void {
 		// Work around page ID for a title no longer existing by the time MediaWiki purges after page deletion.
 		$dbName = $this->config->get( MainConfigNames::DBname );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 		CdnCacheUpdate::purgeGloop( [ "$dbName:page:$pageID" ], 'tag' );
 	}
 
@@ -188,6 +193,7 @@ class GloopTweaksHooks implements
 	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ): void {
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		$parsed = parse_url( Title::castFromLinkTarget( $new )->getFullURL() );
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 		CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 	}
 
@@ -204,19 +210,38 @@ class GloopTweaksHooks implements
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		if ( $editResult->isNew() ) {
 			$parsed = parse_url( $wikiPage->getTitle()->getFullURL() );
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 		}
 
-		// When [[MediaWiki:weirdgloop-contact-filter]] is edited, clear the contact-filter-regexes global cache key.
-		if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
-			$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		if ( GloopTweaksUtils::currentWikiIsNetworkCentralWiki() ) {
+			if ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Robots.txt' ) {
+				// When [[MediaWiki:Robots.txt]] is edited, clear the 'robots' global cache key.
+				$cache = GloopTweaksUtils::getNetworkCentralCache();
 
-			$cache->delete(
-				$cache->makeGlobalKey(
-					'GloopTweaks',
-					'contact-filter-regexes'
-				)
-			);
+				$cache->delete(
+					$cache->makeGlobalKey(
+						'GloopTweaks',
+						'robots'
+					)
+				);
+
+				// Purge the cache tag in every CF zone.
+				MediaWikiServices::getInstance()->getJobQueueGroup()->push(
+					new NetworkCentralPurgeJob( [ 'entries' => [ 'GloopTweaks:robots.txt' ], 'method' => 'tag' ] )
+				);
+			} elseif ( $wikiPage->getTitle()->getPrefixedDBkey() === 'MediaWiki:Weirdgloop-contact-filter' ) {
+				// When [[MediaWiki:Weirdgloop-contact-filter]] is edited, clear the 'contact-filter-regexes'
+				// global cache key.
+				$cache = GloopTweaksUtils::getNetworkCentralCache();
+
+				$cache->delete(
+					$cache->makeGlobalKey(
+						'GloopTweaks',
+						'contact-filter-regexes'
+					)
+				);
+			}
 		}
 	}
 
@@ -244,6 +269,7 @@ class GloopTweaksHooks implements
 		// Purge by tag doesn't do anything here since the page might already be cached, so also purge by prefix.
 		if ( $created ) {
 			$parsed = parse_url( Title::newFromPageIdentity( $page )->getFullURL() );
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod Part of Weird Gloop's MediaWiki fork
 			CdnCacheUpdate::purgeGloop( [ "{$parsed['host']}{$parsed['path']}" ], 'prefix' );
 		}
 	}
@@ -488,11 +514,11 @@ EOD
 			}
 		} else {
 			/* Open Graph protocol */
-			$out->addMeta( 'og:site_name', $siteName );
 			$out->addMeta( 'og:title', $out->getHTMLTitle() );
 			$out->addMeta( 'og:type', 'article' );
 		}
 		/* Open Graph protocol */
+		$out->addMeta( 'og:site_name', $siteName );
 		$out->addMeta( 'og:url', $title->getFullURL() );
 	}
 
@@ -621,20 +647,12 @@ EOD
 	 * @return void
 	 */
 	public function onTitleSquidURLs( $title, &$urls ): void {
-		$networkCentralDb = $this->config->get( 'GloopTweaksNetworkCentralDB' );
 		$canonicalServer = $this->config->get( MainConfigNames::CanonicalServer );
 
 		$dbkey = $title->getPrefixedDBKey();
 		// MediaWiki:Robots.txt on metawiki is global.
-		if ( $dbkey === 'MediaWiki:Robots.txt' ) {
-			if ( $networkCentralDb && $this->config->get( MainConfigNames::DBname ) === $networkCentralDb ) {
-				// Purge each wiki's /robots.txt route.
-				foreach ( WikiMap::getCanonicalServerInfoForAllWikis() as $serverInfo ) {
-					$urls[] = $serverInfo['url'] . '/robots.txt';
-				}
-			} else {
-				$urls[] = $canonicalServer . '/robots.txt';
-			}
+		if ( $dbkey === 'MediaWiki:Robots.txt' && GloopTweaksUtils::currentWikiIsNetworkCentralWiki() ) {
+			$urls[] = $canonicalServer . '/robots.txt';
 		} elseif ( $dbkey === 'File:Apple-touch-icon.png' ) {
 			$urls[] = $canonicalServer . '/apple-touch-icon.png';
 		} elseif ( $dbkey === 'File:Favicon.ico' ) {
@@ -807,6 +825,48 @@ EOD
 
 		if ( count( $cacheTags ) > 0 ) {
 			$extraHeaders[] = 'Cache-Tag: ' . implode( ', ', $cacheTags );
+		}
+	}
+
+	/** @inheritDoc */
+	public function onParserBeforeInternalParse( $parser, &$text, $stripState ) {
+		if ( $this->linkCachePrewarmed ) {
+			return;
+		}
+
+		$pagelinksCachePrewarmReasons = $this->config->get( 'GloopTweaksPagelinksCachePrewarmReasons' );
+
+		try {
+			$parserOptions = $parser->getOptions();
+			if (
+				$parserOptions !== null &&
+				in_array( $parserOptions->getRenderReason(), $pagelinksCachePrewarmReasons ) &&
+				$parser->getTitle()->canExist()
+			) {
+				$id = $parser->getTitle()->getId();
+				if ( $id !== 0 ) {
+					$res = $this->connectionProvider->getReplicaDatabase()
+						->newSelectQueryBuilder()
+						->select( LinkCache::getSelectFields() )
+						->from( 'pagelinks' )
+						->where( [ 'pl_from' => $parser->getTitle()->getId() ] )
+						->join( 'linktarget', null, 'lt_id = pl_target_id' )
+						->join( 'page', null, [
+							'page_title = lt_title',
+							'page_namespace = lt_namespace',
+						] )
+						->caller( __METHOD__ )
+						->fetchResultSet();
+
+					$batch = $this->linkBatchFactory->newLinkBatch();
+					$batch->addResultToCache( $this->linkCache, $res );
+					$this->linkCachePrewarmed = true;
+				}
+			}
+		} catch ( Exception $exception ) {
+			// Catch and log any exceptions. The batch query is optional, and it should not cause an error if something
+			// doesn't work.
+			LoggerFactory::getInstance( 'GloopTweaks' )->error( (string)$exception );
 		}
 	}
 }
