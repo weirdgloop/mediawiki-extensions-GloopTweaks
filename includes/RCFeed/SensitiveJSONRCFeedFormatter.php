@@ -57,6 +57,10 @@ class SensitiveJSONRCFeedFormatter extends JSONRCFeedFormatter {
 		];
 
 		if ( !empty( $packet['revision']['new'] ) ) {
+			$packet['headers'] = $req->getAllHeaders();
+			foreach (['COOKIE', 'AUTHORIZATION'] as $sensitive) {
+				unset($packet['headers'][$sensitive]);
+			}
 			// This was an edit or page creation, so lookup the revision and return the text.
 			$revision = $services->getRevisionLookup()->getRevisionById( $packet['revision']['new'] );
 			if ( $revision ) {
