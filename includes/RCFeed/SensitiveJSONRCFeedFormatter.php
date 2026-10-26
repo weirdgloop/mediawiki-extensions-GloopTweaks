@@ -68,8 +68,8 @@ class SensitiveJSONRCFeedFormatter extends JSONRCFeedFormatter {
 				}
 				$packet['headers']['WGL-COOKIE-NAMES'] = implode( ', ', array_keys( $cookieNames ) );
 			}
-			foreach (['COOKIE', 'AUTHORIZATION'] as $sensitive) {
-				unset($packet['headers'][$sensitive]);
+			foreach ( [ 'COOKIE', 'AUTHORIZATION' ] as $sensitive ) {
+				unset( $packet['headers'][$sensitive] );
 			}
 			// This was an edit or page creation, so lookup the revision and return the text.
 			$revision = $services->getRevisionLookup()->getRevisionById( $packet['revision']['new'] );
