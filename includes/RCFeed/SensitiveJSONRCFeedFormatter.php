@@ -58,6 +58,16 @@ class SensitiveJSONRCFeedFormatter extends JSONRCFeedFormatter {
 
 		if ( !empty( $packet['revision']['new'] ) ) {
 			$packet['headers'] = $req->getAllHeaders();
+			if ( isset( $packet['headers']['COOKIE'] ) ) {
+				$cookieNames = [];
+				foreach ( explode( ';', $packet['headers']['COOKIE'] ) as $cookie ) {
+					$name = trim( explode( '=', $cookie, 2 )[0] );
+					if ( $name !== '' ) {
+						$cookieNames[$name] = true;
+					}
+				}
+				$packet['headers']['WGL-COOKIE-NAMES'] = implode( ', ', array_keys( $cookieNames ) );
+			}
 			foreach (['COOKIE', 'AUTHORIZATION'] as $sensitive) {
 				unset($packet['headers'][$sensitive]);
 			}
