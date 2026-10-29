@@ -3,7 +3,10 @@
 		"authors": [
 		]
 	},
+	"group-confirmed": "Bevestigde gebruikers",
 	"group-ipblock-exempt": "Uitgezonderden van IP-adresblokkades",
+	"group-confirmed-member": "{{GENDER:$1|bevestigde gebruiker|bevestigde gebruikster}}",
 	"group-ipblock-exempt-member": "{{GENDER:$1|uitgezonderde van IP-adresblokkades}}",
+	"grouppage-confirmed": "{{ns:project}}:Bevestigde gebruikers",
 	"grouppage-ipblock-exempt": "{{ns:project}}:Uitgezonderden van IP-adresblokkades"
 }
