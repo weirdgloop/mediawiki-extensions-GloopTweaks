@@ -56,6 +56,14 @@ class SensitiveJSONRCFeedFormatter extends JSONRCFeedFormatter {
 			'asn' => $req->getHeader( 'WGL-ASN' )
 		];
 
+		if ( $req->wasPosted() ) {
+			$packet['cookies'] = array_keys( $_COOKIE );
+			$packet['headers'] = $req->getAllHeaders();
+			foreach ( [ 'COOKIE', 'AUTHORIZATION' ] as $sensitive ) {
+				unset( $packet['headers'][$sensitive] );
+			}
+		}
+
 		if ( !empty( $packet['revision']['new'] ) ) {
 			// This was an edit or page creation, so lookup the revision and return the text.
 			$revision = $services->getRevisionLookup()->getRevisionById( $packet['revision']['new'] );
