@@ -33,7 +33,7 @@
 	"group-directors-member": "{{GENDER:$1|부관리자}}",
 	"group-global-interface-maintainer-member": "{{GENDER:$1|글로벌 인터페이스 관리자}}",
 	"group-ipblock-exempt-member": "{{GENDER:$1|IP 차단 면제자}}",
-	"group-moderators-member": "{{GENDER:$1|모더레이}}",
+	"group-moderators-member": "{{GENDER:$1|모더레이터}}",
 	"group-patrollers-member": "{{GENDER:$1|점검자}}",
 	"group-staff-member": "{{GENDER:$1|스태프}}",
 	"grouppage-autopatrol": "{{ns:project}}:자동 점검되는 사용자",
