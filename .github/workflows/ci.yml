@@ -8,7 +8,7 @@ jobs:
       matrix:
         include:
           - mw-branch: REL1_45
-            php-version: 8.2
+            php-version: 8.3
             experimental: false
 
     uses: weirdgloop/ci-workflows/.github/workflows/extension-ci.yml@main
