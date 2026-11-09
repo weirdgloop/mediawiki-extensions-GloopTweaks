@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - mw-branch: REL1_45
+          - mw-branch: REL1_47
             php-version: 8.3
             experimental: false
 
