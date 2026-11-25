@@ -51,13 +51,9 @@ function wfStaticMain() {
 		return;
 	}
 
-	// Keep track of how well the requests are being cached.
-	$stats = MediaWiki\MediaWikiServices::getInstance()->getStatsdDataFactory();
-
 	// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 	$stat = @stat( $filePath );
 	if ( !$stat ) {
-		$stats->increment( 'wglstatic.notfound' );
 		wfStaticShowError( 404 );
 		return;
 	}
@@ -70,7 +66,6 @@ function wfStaticMain() {
 
 	// No hash was provided, since that is unusual for static resources, cache it for a day.
 	if ( !$urlHash ) {
-		$stats->increment( 'wglstatic.nohash' );
 		header( 'Cache-Control: public, max-age=86400, must-revalidate, s-maxage=86400, stale-while-revalidate=300' );
 	} else {
 		// Otherwise either short cache if it is a mismatch, or immutable if it matches or wouldn't be produced by MW.
@@ -79,11 +74,9 @@ function wfStaticMain() {
 
 		// If the hash is invalid, or it matches, it'll never change, so treat it as immutable.
 		if ( !$validHash || $urlHash === $fileHash ) {
-			$stats->increment( 'wglstatic.immutable' );
 			header( 'Cache-Control: public, max-age=31536000, immutable' );
 		} else {
 			// Otherwise, it mismatched, so make sure the resource stays reasonably fresh.
-			$stats->increment( 'wglstatic.mismatch' );
 			header( 'Cache-Control: public, max-age=0, must-revalidate, s-maxage=60, stale-while-revalidate=60' );
 		}
 	}
