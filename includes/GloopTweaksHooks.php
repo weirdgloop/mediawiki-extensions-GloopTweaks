@@ -335,7 +335,7 @@ class GloopTweaksHooks implements
 			return;
 		}
 
-		$userRepo = MediaWikiServices::getInstance()->getService( 'OATHUserRepository' );
+		$userRepo = MediaWikiServices::getInstance()->getService( 'OATHAuth.UserRepository' );
 		$oathUser = $userRepo->findByUser( $user );
 		if ( !$oathUser->isTwoFactorAuthEnabled() ) {
 			// No 2FA, remove sensitive user rights.
