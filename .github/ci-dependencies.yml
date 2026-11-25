@@ -3,4 +3,4 @@ ContactPage:
 Scribunto:
   repo: https://github.com/weirdgloop/mediawiki-extensions-Scribunto.git
   branch_mappings:
-    REL1_45: 'weirdgloop/REL1_45'
+    REL1_47: 'weirdgloop/REL1_47'
